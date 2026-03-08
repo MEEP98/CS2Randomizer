@@ -1,106 +1,213 @@
-<body style="
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CS2 Challenge Generator</title>
+
+<style>
+
+body{
 margin:0;
-height:100vh;
+background:#121212;
+color:white;
+font-family:Segoe UI, sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
-background:#121212;
-font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
-color:#f0f0f0;
-">
+min-height:100vh;
+}
 
-<div style="
+.container{
+
 background:#1f1f1f;
-padding:30px 40px;
+padding:25px;
 border-radius:12px;
 box-shadow:0 0 15px rgba(0,255,255,0.2);
-max-width:450px;
+max-width:420px;
+width:90%;
 text-align:center;
-">
 
-<h1>CS2 Challenge</h1>
+}
+
+h1{
+margin-top:0;
+}
+
+.challengeTitle{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.challengeText{
+font-size:18px;
+margin-bottom:20px;
+}
+
+button{
+
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+
+}
+
+.primary{
+
+background:#00ffff;
+color:#111;
+
+}
+
+.secondary{
+
+background:#444;
+color:white;
+
+}
+
+.danger{
+
+background:#ff4c4c;
+color:white;
+
+}
+
+.stats{
+
+margin-top:15px;
+font-size:14px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>CS2 Challenges</h1>
 
 <div id="setup">
-<p>Choose starting side:</p>
 
-<button onclick="startGame('CT')" style="margin:5px;padding:10px 20px;">Counter-Terrorist</button>
-<button onclick="startGame('T')" style="margin:5px;padding:10px 20px;">Terrorist</button>
+<p>Vælg start side</p>
+
+<button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
+<button class="primary" onclick="startGame('T')">Start som Terrorist</button>
+
 </div>
 
 <div id="game" style="display:none;">
 
-<p><strong>Round:</strong> <span id="round"></span></p>
-<p><strong>Side:</strong> <span id="side"></span></p>
+<p><b>Runde:</b> <span id="round"></span></p>
+<p><b>Side:</b> <span id="side"></span></p>
 
-<div id="challenge" style="
-margin:20px 0;
-font-size:18px;
-line-height:1.5;
-"></div>
+<div id="challenge"></div>
 
-<button onclick="nextRound()" style="
-background:#00ffff;
-border:none;
-padding:12px 25px;
-font-size:16px;
-font-weight:600;
-color:#121212;
-border-radius:6px;
-cursor:pointer;
-margin:5px;
-">
-Next Round
-</button>
+<button class="primary" onclick="nextRound()">Næste runde</button>
 
-<button onclick="endGame()" style="
-background:#ff4c4c;
-border:none;
-padding:12px 25px;
-font-size:16px;
-font-weight:600;
-color:white;
-border-radius:6px;
-cursor:pointer;
-margin:5px;
-">
-End Game
-</button>
+<button class="secondary" onclick="win()">Vandt runde</button>
+<button class="secondary" onclick="lose()">Tabte runde</button>
+
+<button class="danger" onclick="endGame()">Afslut kamp</button>
+
+<div class="stats">
+
+<p>Wins: <span id="wins">0</span></p>
+<p>Losses: <span id="losses">0</span></p>
 
 </div>
+
+</div>
+
 </div>
 
 <script>
 
-let round = 1
-let side = ""
-let startSide = ""
-let overtime = false
+let round=1
+let side=""
+let overtime=false
 
-const challenges = [
+let wins=0
+let losses=0
 
-"Hold W until the bomb is planted",
-"Buy the cheapest weapon available",
-"Pistol only",
-"No reloading until empty",
-"Follow the first teammate you see",
-"Walk only this round",
-"Rush the bombsite instantly",
-"Throw all grenades immediately",
-"Camp the first corner you reach",
-"Only headshots allowed",
-"Swap weapon with a teammate",
-"Do not scope this round"
+const weapons=[
+
+"AK47","M4A1-S","AWP","Deagle","MP9","P90","Nova","MAG-7","Galil","Famas","Scout"
 
 ]
 
+const generalChallenges=[
+
+{title:"Tag en slapper",text:"Du må kun liste denne runde."},
+{title:"Granatfest",text:"Brug alle dine granater inden 30 sek."},
+{title:"Camping tur",text:"Camp første hjørne du møder."},
+{title:"Ingen reload",text:"Reload kun når magasinet er tomt."},
+{title:"Blind tillid",text:"Følg en teammate hele runden."},
+{title:"Rush time",text:"Hold W hele vejen til sitet."},
+{title:"Headshot jæger",text:"Du må kun gå efter headshots."},
+{title:"Våbenbyt",text:"Samle første våben du ser på jorden."}
+
+]
+
+const ctChallenges=[
+
+{title:"Bombens beskytter",text:"Du må ikke forlade sitet du starter på."},
+{title:"Hero defuse",text:"Hvis bomben plantes SKAL du forsøge defuse."}
+
+]
+
+const tChallenges=[
+
+{title:"Entry fragger",text:"Du skal være første spiller ind på sitet."},
+{title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}
+
+]
+
+function randomWeapon(){
+
+return weapons[Math.floor(Math.random()*weapons.length)]
+
+}
+
 function randomChallenge(){
-return challenges[Math.floor(Math.random()*challenges.length)]
+
+let pool=[...generalChallenges]
+
+if(side==="CT") pool.push(...ctChallenges)
+if(side==="T") pool.push(...tChallenges)
+
+let c=pool[Math.floor(Math.random()*pool.length)]
+
+if(Math.random()<0.25){
+
+return{
+
+title:"Våben Roulette",
+text:"Du må kun bruge "+randomWeapon()+" denne runde."
+
+}
+
+}
+
+return c
+
 }
 
 function startGame(s){
 
-side = s
-startSide = s
+side=s
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
@@ -111,9 +218,17 @@ updateUI()
 
 function updateUI(){
 
-document.getElementById("round").innerText = round
-document.getElementById("side").innerText = side === "CT" ? "Counter-Terrorist" : "Terrorist"
-document.getElementById("challenge").innerText = randomChallenge()
+document.getElementById("round").innerText=round
+
+document.getElementById("side").innerText=
+
+side==="CT"?"Counter-Terrorist":"Terrorist"
+
+let c=randomChallenge()
+
+document.getElementById("challenge").innerHTML=
+
+"<div class='challengeTitle'>"+c.title+"</div><div class='challengeText'>"+c.text+"</div>"
 
 }
 
@@ -121,27 +236,23 @@ function nextRound(){
 
 round++
 
-if(round === 13 && !overtime){
+if(round===13 && !overtime){
 
-side = side === "CT" ? "T" : "CT"
+side=side==="CT"?"T":"CT"
 
-alert("Sides have switched!")
+alert("Siderne er skiftet!")
 
 }
 
-if(round === 25 && !overtime){
+if(round===25 && !overtime){
 
-let ot = confirm("Overtime?")
+if(confirm("Overtime?")){
 
-if(ot){
-
-overtime = true
-
-alert("Overtime started!")
+overtime=true
 
 }else{
 
-alert("Match ended!")
+alert("Kamp slut!")
 
 location.reload()
 
@@ -153,17 +264,17 @@ return
 
 if(overtime){
 
-if(round === 28){
+if(round===28){
 
-side = side === "CT" ? "T" : "CT"
+side=side==="CT"?"T":"CT"
 
-alert("Overtime side switch!")
+alert("Overtime sideskift!")
 
 }
 
-if(round > 30){
+if(round>30){
 
-alert("Overtime finished!")
+alert("Overtime slut!")
 
 location.reload()
 
@@ -174,6 +285,22 @@ return
 }
 
 updateUI()
+
+}
+
+function win(){
+
+wins++
+
+document.getElementById("wins").innerText=wins
+
+}
+
+function lose(){
+
+losses++
+
+document.getElementById("losses").innerText=losses
 
 }
 
@@ -186,3 +313,4 @@ location.reload()
 </script>
 
 </body>
+</html>
