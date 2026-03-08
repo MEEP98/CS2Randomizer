@@ -1,4 +1,120 @@
-```html
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 Challenge Generator</title>
+
+<style>
+
+body{
+margin:0;
+background:#121212;
+color:white;
+font-family:Segoe UI;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.container{
+background:#1f1f1f;
+padding:25px;
+border-radius:12px;
+max-width:420px;
+width:90%;
+text-align:center;
+box-shadow:0 0 15px rgba(0,255,255,0.2);
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.primary{background:#00ffff;color:#111;}
+.win{background:#28a745;color:white;}
+.loss{background:#dc3545;color:white;}
+.danger{background:#ff4c4c;color:white;}
+
+.challengeTitle{font-size:22px;font-weight:bold;margin-bottom:10px;}
+.challengeText{font-size:18px;margin-bottom:20px;}
+
+.scoreboard{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.scoreBox{
+flex:1;
+padding:12px;
+border-radius:8px;
+}
+
+.winBox{background:#1f5f2e;}
+.lossBox{background:#5f1f1f;}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>CS2 Challenges</h1>
+
+<div id="setup">
+
+<p>Vælg Game Mode</p>
+
+<button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+<button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+<button class="primary" onclick="selectMode('Druk')">Druk</button>
+
+</div>
+
+
+<div id="game" style="display:none;">
+
+<p><b>Mode:</b> <span id="modeDisplay"></span></p>
+<p><b>Map:</b> <span id="mapDisplay"></span></p>
+<p><b>Runde:</b> <span id="round"></span></p>
+<p><b>Side:</b> <span id="side"></span></p>
+
+<div id="challenge"></div>
+
+<button class="win" onclick="win()">Vandt runde</button>
+<button class="loss" onclick="lose()">Tabte runde</button>
+
+<div class="scoreboard">
+
+<div class="scoreBox winBox">
+Wins
+<div id="wins">0</div>
+</div>
+
+<div class="scoreBox lossBox">
+Losses
+<div id="losses">0</div>
+</div>
+
+</div>
+
+<button class="danger" onclick="endGame()">Afslut kamp</button>
+
+</div>
+
+</div>
+
+
 <script>
 
 let round=1
@@ -24,6 +140,7 @@ Druk:[]
 }
 
 
+
 // STANDARD CHALLENGES
 
 const standardChallenges=[
@@ -38,9 +155,10 @@ const standardChallenges=[
 
 
 
-// MAP CHALLENGES
+// COMPETITIVE MAP CHALLENGES
 
 const competitiveMapChallenges={
+
 "Anubis":[{title:"Map Test",text:"Competitive Anubis virker"}],
 "Overpass":[{title:"Map Test",text:"Competitive Overpass virker"}],
 "Inferno":[{title:"Map Test",text:"Competitive Inferno virker"}],
@@ -53,14 +171,21 @@ const competitiveMapChallenges={
 "Office":[{title:"Map Test",text:"Competitive Office virker"}],
 "Italy":[{title:"Map Test",text:"Competitive Italy virker"}],
 "Andet":[{title:"Map Test",text:"Competitive Andet virker"}]
+
 }
 
+
+
+// WINGMAN MAP CHALLENGES
+
 const wingmanMapChallenges={
+
 "Overpass":[{title:"Map Test",text:"Wingman Overpass virker"}],
 "Vertigo":[{title:"Map Test",text:"Wingman Vertigo virker"}],
 "Nuke":[{title:"Map Test",text:"Wingman Nuke virker"}],
 "Inferno":[{title:"Map Test",text:"Wingman Inferno virker"}],
 "Andet":[{title:"Map Test",text:"Wingman Andet virker"}]
+
 }
 
 
@@ -74,8 +199,11 @@ currentMode=mode
 if(mode==="Druk"){
 
 document.getElementById("setup").innerHTML=`
+
 <p>Kommer snart</p>
+
 <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
+
 `
 return
 }
@@ -85,7 +213,9 @@ let mapButtons=mapsByMode[mode].map(m=>`<button class="primary" onclick="selectM
 document.getElementById("setup").innerHTML=`
 
 <p>Vælg Map (${mode})</p>
+
 ${mapButtons}
+
 <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
 
 `
@@ -96,7 +226,15 @@ ${mapButtons}
 
 function resetSetup(){
 
-location.reload()
+document.getElementById("setup").innerHTML=`
+
+<p>Vælg Game Mode</p>
+
+<button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+<button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+<button class="primary" onclick="selectMode('Druk')">Druk</button>
+
+`
 
 }
 
@@ -126,7 +264,7 @@ document.getElementById("setup").innerHTML=`
 
 
 
-// RANDOM CHALLENGE
+// 50/50 CHALLENGE SYSTEM
 
 function randomChallenge(){
 
@@ -139,7 +277,7 @@ if(currentMode==="Competitive"){
 pool=competitiveMapChallenges[currentMap]
 }
 
-if(currentMode==="Wingman"){
+else if(currentMode==="Wingman"){
 pool=wingmanMapChallenges[currentMap]
 }
 
@@ -149,7 +287,9 @@ if(!pool || pool.length===0){
 pool=standardChallenges
 }
 
-return pool[Math.floor(Math.random()*pool.length)]
+let c=pool[Math.floor(Math.random()*pool.length)]
+
+return c
 
 }
 
@@ -213,61 +353,14 @@ nextRound()
 
 
 
-// NÆSTE RUNDE
-
 function nextRound(){
 
 round++
-
-
-// SIDE SWITCH
-
-if(currentMode==="Competitive" && round===13){
-switchSide()
-}
-
-if(currentMode==="Wingman" && round===9){
-switchSide()
-}
-
-
-// CHECK GAME END
-
-if(currentMode==="Competitive" && wins===13){
-alert("Kampen er slut! I vandt!")
-location.reload()
-}
-
-if(currentMode==="Wingman"){
-
-if(wins===9){
-alert("Kampen er slut! I vandt!")
-location.reload()
-}
-
-if(wins===8 && losses===8){
-alert("Kampen endte 8-8 (uafgjort)")
-location.reload()
-}
-
-}
-
 updateUI()
 
 }
 
 
-
-function switchSide(){
-
-side = side==="CT" ? "T" : "CT"
-alert("Sides skifter!")
-
-}
-
-
-
-// END GAME
 
 function endGame(){
 
@@ -276,4 +369,6 @@ location.reload()
 }
 
 </script>
-```
+
+</body>
+</html>
