@@ -22,7 +22,6 @@ min-height:100vh;
 }
 
 .container{
-
 background:#1f1f1f;
 padding:25px;
 border-radius:12px;
@@ -30,7 +29,6 @@ box-shadow:0 0 15px rgba(0,255,255,0.2);
 max-width:420px;
 width:90%;
 text-align:center;
-
 }
 
 h1{
@@ -49,7 +47,6 @@ margin-bottom:20px;
 }
 
 button{
-
 width:100%;
 padding:14px;
 margin-top:10px;
@@ -58,7 +55,6 @@ border-radius:8px;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-
 }
 
 .primary{
@@ -81,9 +77,36 @@ background:#ff4c4c;
 color:white;
 }
 
-.stats{
+.scoreboard{
+display:flex;
+gap:10px;
 margin-top:15px;
+}
+
+.scoreBox{
+flex:1;
+padding:12px;
+border-radius:8px;
+text-align:center;
+font-weight:bold;
+}
+
+.winBox{
+background:#1f5f2e;
+}
+
+.lossBox{
+background:#5f1f1f;
+}
+
+.scoreLabel{
 font-size:14px;
+opacity:0.8;
+}
+
+.scoreNumber{
+font-size:22px;
+margin-top:4px;
 }
 
 </style>
@@ -125,16 +148,23 @@ Vandt runde
 Tabte runde
 </button>
 
+<div class="scoreboard">
+
+<div class="scoreBox winBox">
+<div class="scoreLabel">Wins</div>
+<div id="wins" class="scoreNumber">0</div>
+</div>
+
+<div class="scoreBox lossBox">
+<div class="scoreLabel">Losses</div>
+<div id="losses" class="scoreNumber">0</div>
+</div>
+
+</div>
+
 <button class="danger" onclick="endGame()">
 Afslut kamp
 </button>
-
-<div class="stats">
-
-<p>Wins: <span id="wins">0</span></p>
-<p>Losses: <span id="losses">0</span></p>
-
-</div>
 
 </div>
 
@@ -150,7 +180,6 @@ let wins=0
 let losses=0
 
 const weapons=[
-
 "AK-47",
 "M4A1-S",
 "M4A4",
@@ -163,7 +192,6 @@ const weapons=[
 "Galil",
 "Famas",
 "SSG 08"
-
 ]
 
 const generalChallenges=[
@@ -194,9 +222,7 @@ const tChallenges=[
 ]
 
 function randomWeapon(){
-
 return weapons[Math.floor(Math.random()*weapons.length)]
-
 }
 
 function randomChallenge(){
@@ -253,7 +279,6 @@ round++
 if(round===13 && !overtime){
 
 side=side==="CT"?"T":"CT"
-
 alert("Siderne er skiftet!")
 
 }
@@ -267,9 +292,7 @@ overtime=true
 }else{
 
 alert("Kamp slut!")
-
 location.reload()
-
 return
 
 }
@@ -281,7 +304,6 @@ if(overtime){
 if(round===28){
 
 side=side==="CT"?"T":"CT"
-
 alert("Overtime sideskift!")
 
 }
@@ -289,9 +311,7 @@ alert("Overtime sideskift!")
 if(round>30){
 
 alert("Overtime slut!")
-
 location.reload()
-
 return
 
 }
