@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -82,6 +81,7 @@ border-radius:8px;
 
 </div>
 
+
 <div id="game" style="display:none;">
 
 <p><b>Mode:</b> <span id="modeDisplay"></span></p>
@@ -140,6 +140,7 @@ Druk:[]
 }
 
 
+// STANDARD CHALLENGES
 
 const standardChallenges=[
 
@@ -153,94 +154,42 @@ const standardChallenges=[
 
 
 
+// COMPETITIVE MAP CHALLENGES
+
 const competitiveMapChallenges={
 
-"Anubis":[
-{title:"Map Test",text:"Competitive Anubis virker"},
-{title:"Map Test",text:"Anubis challenge test"},
-{title:"Map Test",text:"Endnu en Anubis test"}
-],
-
-"Overpass":[
-{title:"Map Test",text:"Competitive Overpass virker"},
-{title:"Map Test",text:"Overpass challenge test"},
-{title:"Map Test",text:"Endnu en Overpass test"}
-],
-
-"Inferno":[
-{title:"Map Test",text:"Competitive Inferno virker"},
-{title:"Map Test",text:"Inferno challenge test"}
-],
-
-"Mirage":[
-{title:"Map Test",text:"Competitive Mirage virker"},
-{title:"Map Test",text:"Mirage challenge test"},
-{title:"Map Test",text:"Endnu en Mirage test"}
-],
-
-"Dust 2":[
-{title:"Map Test",text:"Competitive Dust2 virker"},
-{title:"Map Test",text:"Dust2 challenge test"}
-],
-
-"Nuke":[
-{title:"Map Test",text:"Competitive Nuke virker"},
-{title:"Map Test",text:"Nuke challenge test"}
-],
-
-"Ancient":[
-{title:"Map Test",text:"Competitive Ancient virker"}
-],
-
-"Train":[
-{title:"Map Test",text:"Competitive Train virker"}
-],
-
-"Vertigo":[
-{title:"Map Test",text:"Competitive Vertigo virker"}
-],
-
-"Office":[
-{title:"Map Test",text:"Competitive Office virker"}
-],
-
-"Italy":[
-{title:"Map Test",text:"Competitive Italy virker"}
-],
-
-"Andet":[
-{title:"Map Test",text:"Competitive Andet virker"}
-]
+"Anubis":[{title:"Map Test",text:"Competitive Anubis virker"}],
+"Overpass":[{title:"Map Test",text:"Competitive Overpass virker"}],
+"Inferno":[{title:"Map Test",text:"Competitive Inferno virker"}],
+"Mirage":[{title:"Map Test",text:"Competitive Mirage virker"}],
+"Dust 2":[{title:"Map Test",text:"Competitive Dust2 virker"}],
+"Nuke":[{title:"Map Test",text:"Competitive Nuke virker"}],
+"Ancient":[{title:"Map Test",text:"Competitive Ancient virker"}],
+"Train":[{title:"Map Test",text:"Competitive Train virker"}],
+"Vertigo":[{title:"Map Test",text:"Competitive Vertigo virker"}],
+"Office":[{title:"Map Test",text:"Competitive Office virker"}],
+"Italy":[{title:"Map Test",text:"Competitive Italy virker"}],
+"Andet":[{title:"Map Test",text:"Competitive Andet virker"}]
 
 }
 
 
+
+// WINGMAN MAP CHALLENGES
 
 const wingmanMapChallenges={
 
-"Overpass":[
-{title:"Map Test",text:"Wingman Overpass virker"}
-],
-
-"Vertigo":[
-{title:"Map Test",text:"Wingman Vertigo virker"}
-],
-
-"Nuke":[
-{title:"Map Test",text:"Wingman Nuke virker"}
-],
-
-"Inferno":[
-{title:"Map Test",text:"Wingman Inferno virker"}
-],
-
-"Andet":[
-{title:"Map Test",text:"Wingman Andet virker"}
-]
+"Overpass":[{title:"Map Test",text:"Wingman Overpass virker"}],
+"Vertigo":[{title:"Map Test",text:"Wingman Vertigo virker"}],
+"Nuke":[{title:"Map Test",text:"Wingman Nuke virker"}],
+"Inferno":[{title:"Map Test",text:"Wingman Inferno virker"}],
+"Andet":[{title:"Map Test",text:"Wingman Andet virker"}]
 
 }
 
 
+
+// GAME MODE
 
 function selectMode(mode){
 
@@ -251,6 +200,7 @@ if(mode==="Druk"){
 document.getElementById("setup").innerHTML=`
 
 <p>Kommer snart</p>
+
 <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
 
 `
@@ -262,7 +212,9 @@ let mapButtons=mapsByMode[mode].map(m=>`<button class="primary" onclick="selectM
 document.getElementById("setup").innerHTML=`
 
 <p>Vælg Map (${mode})</p>
+
 ${mapButtons}
+
 <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
 
 `
@@ -273,15 +225,27 @@ ${mapButtons}
 
 function resetSetup(){
 
-location.reload()
+document.getElementById("setup").innerHTML=`
+
+<p>Vælg Game Mode</p>
+
+<button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+<button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+<button class="primary" onclick="selectMode('Druk')">Druk</button>
+
+`
 
 }
 
 
 
+// MAP VALG
+
 function selectMap(map){
 
 currentMap=map
+
+document.getElementById("mapDisplay").innerText=map
 
 document.getElementById("setup").innerHTML=`
 
@@ -301,42 +265,49 @@ document.getElementById("setup").innerHTML=`
 
 
 
+// 50/50 CHALLENGE SYSTEM
+
 function randomChallenge(){
-
-let standardPool = standardChallenges
-
-let mapPool = []
-
-if(currentMode==="Competitive"){
-mapPool = competitiveMapChallenges[currentMap] || []
-}
-
-if(currentMode==="Wingman"){
-mapPool = wingmanMapChallenges[currentMap] || []
-}
 
 let useMap = Math.random() < 0.5
 
-let pool
+let pool=[]
 
-if(useMap && mapPool.length>0){
-pool = mapPool
-}else{
-pool = standardPool
+if(useMap){
+
+if(currentMode==="Competitive"){
+pool=competitiveMapChallenges[currentMap] || []
 }
 
-return pool[Math.floor(Math.random()*pool.length)]
+if(currentMode==="Wingman"){
+pool=wingmanMapChallenges[currentMap] || []
+}
+
+}
+
+if(pool.length===0){
+pool=standardChallenges
+}
+
+if(!useMap){
+pool=standardChallenges
+}
+
+let c=pool[Math.floor(Math.random()*pool.length)]
+
+return c
 
 }
 
 
+
+// START GAME
 
 function startGame(s){
 
 side=s
 
 document.getElementById("modeDisplay").innerText=currentMode
-document.getElementById("mapDisplay").innerText=currentMap
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
@@ -346,6 +317,8 @@ updateUI()
 }
 
 
+
+// UI
 
 function updateUI(){
 
@@ -364,6 +337,8 @@ document.getElementById("challenge").innerHTML=`
 }
 
 
+
+// WIN / LOSE
 
 function win(){
 
@@ -402,4 +377,3 @@ location.reload()
 
 </body>
 </html>
-```
