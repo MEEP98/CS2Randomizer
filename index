@@ -1,0 +1,141 @@
+<body style="
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#121212;
+  font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+  color:#f0f0f0;
+">
+
+<div style="
+  background:#1f1f1f;
+  padding:30px 40px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,255,255,0.2);
+  max-width:450px;
+  text-align:center;
+">
+
+<h1 style="margin-bottom:15px;">CS2 Challenge</h1>
+
+<div id="setup">
+<p>Choose starting side:</p>
+
+<button onclick="startGame('CT')" style="margin:5px;padding:10px 20px;">Counter-Terrorist</button>
+<button onclick="startGame('T')" style="margin:5px;padding:10px 20px;">Terrorist</button>
+</div>
+
+<div id="game" style="display:none;">
+
+<p><strong>Round:</strong> <span id="round">1</span></p>
+<p><strong>Side:</strong> <span id="side"></span></p>
+
+<div id="challenge" style="
+margin:20px 0;
+font-size:18px;
+line-height:1.5;
+"></div>
+
+<button onclick="nextRound()" style="
+background:#00ffff;
+border:none;
+padding:12px 25px;
+font-size:16px;
+font-weight:600;
+color:#121212;
+border-radius:6px;
+cursor:pointer;
+margin:5px;
+">
+Next Round
+</button>
+
+<button onclick="endGame()" style="
+background:#ff4c4c;
+border:none;
+padding:12px 25px;
+font-size:16px;
+font-weight:600;
+color:white;
+border-radius:6px;
+cursor:pointer;
+margin:5px;
+">
+End Game
+</button>
+
+</div>
+</div>
+
+<script>
+
+let round = 1
+let side = ""
+
+const challenges = [
+
+"Hold W until the bomb is planted",
+"Buy the cheapest weapon available",
+"Only aim for headshots this round",
+"Do not reload until the magazine is empty",
+"Use pistol only",
+"Follow the first teammate you see",
+"Walk the entire round (no running)",
+"Throw all grenades immediately",
+"Camp the first corner you reach",
+"Swap weapon with a teammate",
+"Do not use your crosshair (hip instinct)",
+"Rush the bombsite immediately"
+
+]
+
+function randomChallenge(){
+return challenges[Math.floor(Math.random()*challenges.length)]
+}
+
+function startGame(startSide){
+
+side = startSide
+
+document.getElementById("setup").style.display="none"
+document.getElementById("game").style.display="block"
+
+updateUI()
+
+}
+
+function updateUI(){
+
+document.getElementById("round").innerText = round
+document.getElementById("side").innerText = side === "CT" ? "Counter-Terrorist" : "Terrorist"
+document.getElementById("challenge").innerText = randomChallenge()
+
+}
+
+function nextRound(){
+
+round++
+
+if(round === 13){
+
+side = side === "CT" ? "T" : "CT"
+
+alert("Sides have switched!")
+
+}
+
+updateUI()
+
+}
+
+function endGame(){
+
+location.reload()
+
+}
+
+</script>
+
+</body>
