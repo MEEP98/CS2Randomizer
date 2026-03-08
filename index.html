@@ -105,15 +105,18 @@ const tChallenges=[
 function selectMode(mode){
   currentMode = mode;
   document.getElementById("modeDisplay").innerText = mode;
+
   if(mode==="Druk"){
     document.getElementById("setup").innerHTML = `
       <p>Kommer snart</p>
-      <button class="primary" onclick="resetSetup()">Tilbage</button>
+      <button class="primary" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
     `;
     return;
   }
-  let mapButtons = mapsByMode[mode].map(m => `<button class="primary" onclick="selectMap('${m}')">${m}</button>`).join("");
-  document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons;
+
+  let mapButtons = mapsByMode[mode].map(m => `<button class="primary" style="margin-top:10px;" onclick="selectMap('${m}')">${m}</button>`).join("");
+  
+  document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons + `<button class="primary" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>`;
 }
 
 function resetSetup(){
@@ -128,12 +131,14 @@ function resetSetup(){
 function selectMap(map){
   currentMap = map;
   document.getElementById("mapDisplay").innerText = map;
+
   document.getElementById("setup").innerHTML = `
     <p>Valgt Mode: ${currentMode}</p>
     <p>Valgt Map: ${currentMap}</p>
     <p>Vælg start side</p>
     <button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
     <button class="primary" onclick="startGame('T')">Start som Terrorist</button>
+    <button class="primary" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
   `;
 }
 
