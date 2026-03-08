@@ -106,11 +106,23 @@ function selectMode(mode){
   currentMode = mode;
   document.getElementById("modeDisplay").innerText = mode;
   if(mode==="Druk"){
-    document.getElementById("setup").innerHTML = `<p>Kommer snart</p>`;
+    document.getElementById("setup").innerHTML = `
+      <p>Kommer snart</p>
+      <button class="primary" onclick="resetSetup()">Tilbage</button>
+    `;
     return;
   }
   let mapButtons = mapsByMode[mode].map(m => `<button class="primary" onclick="selectMap('${m}')">${m}</button>`).join("");
   document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons;
+}
+
+function resetSetup(){
+  document.getElementById("setup").innerHTML = `
+    <p>Vælg Game Mode</p>
+    <button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+    <button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+    <button class="primary" onclick="selectMode('Druk')">Druk</button>
+  `;
 }
 
 function selectMap(map){
@@ -175,7 +187,7 @@ function nextRound(){
     if(round===13 && !overtime){side = side==="CT"?"T":"CT"; alert("Siderne er skiftet!");}
     if(overtime && round===28){side = side==="CT"?"T":"CT"; alert("Overtime sideskift!");}
   } else if(currentMode==="Wingman"){
-    if(round===9){side = side==="CT"?"T":"CT"; alert("Siderne skifter i Wingman!");}
+    if(round===8){side = side==="CT"?"T":"CT"; alert("Siderne skifter i Wingman!");}
   }
   updateUI();
 }
