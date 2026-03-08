@@ -4,38 +4,86 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CS2 Challenge Generator</title>
+
 <style>
-body{margin:0;background:#121212;color:white;font-family:Segoe UI, sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;}
-.container{background:#1f1f1f;padding:25px;border-radius:12px;box-shadow:0 0 15px rgba(0,255,255,0.2);max-width:420px;width:90%;text-align:center;}
-h1{margin-top:0;}
-.challengeTitle{font-size:22px;font-weight:bold;margin-bottom:10px;}
-.challengeText{font-size:18px;margin-bottom:20px;}
-button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
+
+body{
+margin:0;
+background:#121212;
+color:white;
+font-family:Segoe UI;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.container{
+background:#1f1f1f;
+padding:25px;
+border-radius:12px;
+max-width:420px;
+width:90%;
+text-align:center;
+box-shadow:0 0 15px rgba(0,255,255,0.2);
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
 .primary{background:#00ffff;color:#111;}
 .win{background:#28a745;color:white;}
 .loss{background:#dc3545;color:white;}
 .danger{background:#ff4c4c;color:white;}
-.scoreboard{display:flex;gap:10px;margin-top:15px;}
-.scoreBox{flex:1;padding:12px;border-radius:8px;text-align:center;font-weight:bold;}
+
+.challengeTitle{font-size:22px;font-weight:bold;margin-bottom:10px;}
+.challengeText{font-size:18px;margin-bottom:20px;}
+
+.scoreboard{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.scoreBox{
+flex:1;
+padding:12px;
+border-radius:8px;
+}
+
 .winBox{background:#1f5f2e;}
 .lossBox{background:#5f1f1f;}
-.scoreLabel{font-size:14px;opacity:0.8;}
-.scoreNumber{font-size:22px;margin-top:4px;}
+
 </style>
 </head>
+
 <body>
+
 <div class="container">
 
 <h1>CS2 Challenges</h1>
 
 <div id="setup">
+
 <p>Vælg Game Mode</p>
+
 <button class="primary" onclick="selectMode('Competitive')">Competitive</button>
 <button class="primary" onclick="selectMode('Wingman')">Wingman</button>
 <button class="primary" onclick="selectMode('Druk')">Druk</button>
+
 </div>
 
+
 <div id="game" style="display:none;">
+
 <p><b>Mode:</b> <span id="modeDisplay"></span></p>
 <p><b>Map:</b> <span id="mapDisplay"></span></p>
 <p><b>Runde:</b> <span id="round"></span></p>
@@ -47,159 +95,274 @@ button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:8px;fon
 <button class="loss" onclick="lose()">Tabte runde</button>
 
 <div class="scoreboard">
+
 <div class="scoreBox winBox">
-<div class="scoreLabel">Wins</div>
-<div id="wins" class="scoreNumber">0</div>
+Wins
+<div id="wins">0</div>
 </div>
+
 <div class="scoreBox lossBox">
-<div class="scoreLabel">Losses</div>
-<div id="losses" class="scoreNumber">0</div>
+Losses
+<div id="losses">0</div>
 </div>
+
 </div>
 
 <button class="danger" onclick="endGame()">Afslut kamp</button>
 
 </div>
+
 </div>
 
+
 <script>
-// ===== Variabler =====
-let round=1;
-let side="";
-let overtime=false;
-let wins=0;
-let losses=0;
-let currentMode="";
-let currentMap="";
 
-const mapsByMode = {
-  "Competitive":["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
-  "Wingman":["Overpass","Vertigo","Nuke","Inferno","Andet"],
-  "Druk":[] 
-};
+let round=1
+let side=""
+let wins=0
+let losses=0
+let currentMode=""
+let currentMap=""
 
-const weapons=["AK-47","M4A1-S","M4A4","AWP","Desert Eagle","MP9","P90","Nova","MAG-7","Galil","Famas","SSG 08"];
 
-const generalChallenges=[
-{title:"Tag en slapper",text:"Du må kun liste denne runde."},
-{title:"Granatfest",text:"Brug alle dine granater inden 30 sek."},
-{title:"Camping tur",text:"Camp første hjørne du møder."},
-{title:"Ingen reload",text:"Reload kun når magasinet er tomt."},
-{title:"Blind tillid",text:"Følg en teammate hele runden."},
-{title:"Rush time",text:"Hold W hele vejen til sitet."},
-{title:"Headshot jæger",text:"Du må kun gå efter headshots."},
-{title:"Våbenbyt",text:"Samle første våben du ser på jorden."}
-];
+const mapsByMode={
 
-const ctChallenges=[
-{title:"Bombens beskytter",text:"Du må ikke forlade sitet du starter på."},
-{title:"Hero defuse",text:"Hvis bomben plantes SKAL du forsøge defuse."}
-];
+Competitive:[
+"Anubis","Overpass","Inferno","Mirage","Dust 2",
+"Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"
+],
 
-const tChallenges=[
-{title:"Entry fragger",text:"Du skal være første spiller ind på sitet."},
-{title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}
-];
+Wingman:[
+"Overpass","Vertigo","Nuke","Inferno","Andet"
+],
 
-// ===== Funktionskode =====
-function selectMode(mode){
-  currentMode = mode;
-  document.getElementById("modeDisplay").innerText = mode;
+Druk:[]
 
-  if(mode==="Druk"){
-    document.getElementById("setup").innerHTML = `
-      <p>Kommer snart</p>
-      <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
-    `;
-    return;
-  }
-
-  let mapButtons = mapsByMode[mode].map(m => `<button class="primary" style="margin-top:10px;" onclick="selectMap('${m}')">${m}</button>`).join("");
-  
-  document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons + `<button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>`;
 }
+
+
+
+// STANDARD CHALLENGES
+
+const standardChallenges=[
+
+{title:"Tag en slapper",text:"Du må kun liste denne runde"},
+{title:"Rush B",text:"Du SKAL rush uden at stoppe"},
+{title:"Ingen reload",text:"Reload kun når magasinet er helt tomt"},
+{title:"Headshot only",text:"Du må kun skyde efter hovedet"},
+{title:"Granatfest",text:"Brug alle dine granater inden 30 sek"}
+
+]
+
+
+
+// COMPETITIVE MAP CHALLENGES
+
+const competitiveMapChallenges={
+
+"Anubis":[],
+"Overpass":[],
+"Inferno":[],
+"Mirage":[],
+"Dust 2":[],
+"Nuke":[],
+"Ancient":[],
+"Train":[],
+"Vertigo":[],
+"Office":[],
+"Italy":[],
+"Andet":[]
+
+}
+
+
+
+// WINGMAN MAP CHALLENGES
+
+const wingmanMapChallenges={
+
+"Overpass":[],
+"Vertigo":[],
+"Nuke":[],
+"Inferno":[],
+"Andet":[]
+
+}
+
+
+
+// GAME MODE
+
+function selectMode(mode){
+
+currentMode=mode
+
+if(mode==="Druk"){
+
+document.getElementById("setup").innerHTML=`
+
+<p>Kommer snart</p>
+
+<button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
+
+`
+return
+}
+
+let mapButtons=mapsByMode[mode].map(m=>`<button class="primary" onclick="selectMap('${m}')">${m}</button>`).join("")
+
+document.getElementById("setup").innerHTML=`
+
+<p>Vælg Map (${mode})</p>
+
+${mapButtons}
+
+<button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
+
+`
+
+}
+
+
 
 function resetSetup(){
-  document.getElementById("setup").innerHTML = `
-    <p>Vælg Game Mode</p>
-    <button class="primary" onclick="selectMode('Competitive')">Competitive</button>
-    <button class="primary" onclick="selectMode('Wingman')">Wingman</button>
-    <button class="primary" onclick="selectMode('Druk')">Druk</button>
-  `;
+
+document.getElementById("setup").innerHTML=`
+
+<p>Vælg Game Mode</p>
+
+<button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+<button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+<button class="primary" onclick="selectMode('Druk')">Druk</button>
+
+`
+
 }
+
+
+
+// MAP VALG
 
 function selectMap(map){
-  currentMap = map;
-  document.getElementById("mapDisplay").innerText = map;
 
-  document.getElementById("setup").innerHTML = `
-    <p>Valgt Mode: ${currentMode}</p>
-    <p>Valgt Map: ${currentMap}</p>
-    <p>Vælg start side</p>
-    <button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
-    <button class="primary" onclick="startGame('T')">Start som Terrorist</button>
-    <button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
-  `;
+currentMap=map
+
+document.getElementById("mapDisplay").innerText=map
+
+document.getElementById("setup").innerHTML=`
+
+<p>Valgt Mode: ${currentMode}</p>
+<p>Valgt Map: ${currentMap}</p>
+
+<p>Vælg start side</p>
+
+<button class="primary" onclick="startGame('CT')">Start som CT</button>
+<button class="primary" onclick="startGame('T')">Start som T</button>
+
+<button class="danger" style="margin-top:15px;" onclick="resetSetup()">Tilbage</button>
+
+`
+
 }
 
-function randomWeapon(){return weapons[Math.floor(Math.random()*weapons.length)];}
+
+
+// RANDOM CHALLENGE SYSTEM
 
 function randomChallenge(){
-  let pool=[...generalChallenges];
-  if(side==="CT") pool.push(...ctChallenges);
-  if(side==="T") pool.push(...tChallenges);
-  let c = pool[Math.floor(Math.random()*pool.length)];
-  if(Math.random()<0.25){return {title:"Våben Roulette",text:"Du må kun bruge "+randomWeapon()+" denne runde."};}
-  return c;
+
+let pool=[...standardChallenges]
+
+if(currentMode==="Competitive" && competitiveMapChallenges[currentMap]){
+
+pool=pool.concat(competitiveMapChallenges[currentMap])
+
 }
+
+if(currentMode==="Wingman" && wingmanMapChallenges[currentMap]){
+
+pool=pool.concat(wingmanMapChallenges[currentMap])
+
+}
+
+let c=pool[Math.floor(Math.random()*pool.length)]
+
+return c
+
+}
+
+
+
+// START GAME
 
 function startGame(s){
-  side = s;
-  document.getElementById("setup").style.display="none";
-  document.getElementById("game").style.display="block";
-  updateUI();
+
+side=s
+
+document.getElementById("setup").style.display="none"
+document.getElementById("game").style.display="block"
+
+updateUI()
+
 }
+
+
+
+// UI
 
 function updateUI(){
-  document.getElementById("round").innerText=round;
-  document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist";
-  let c=randomChallenge();
-  document.getElementById("challenge").innerHTML="<div class='challengeTitle'>"+c.title+"</div><div class='challengeText'>"+c.text+"</div>";
+
+document.getElementById("round").innerText=round
+document.getElementById("side").innerText=side
+
+let c=randomChallenge()
+
+document.getElementById("challenge").innerHTML=`
+
+<div class="challengeTitle">${c.title}</div>
+<div class="challengeText">${c.text}</div>
+
+`
+
 }
 
-// ===== Win/lose logik =====
-function checkWin(){
-  if(currentMode==="Competitive"){
-    if(!overtime){
-      if(wins===13 && losses<12){alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses); location.reload();}
-      if(losses===13 && wins<12){alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses); location.reload();}
-      if(wins===12 && losses===12){alert("⚔️ 12-12! Overtime starter!"); overtime=true;}
-    }else{
-      if(wins===16 && losses<15){alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses); location.reload();}
-      if(losses===16 && wins<15){alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses); location.reload();}
-      if(wins===15 && losses===15){alert("🤝 15-15! Kampen endte uafgjort."); location.reload();}
-    }
-  } else if(currentMode==="Wingman"){
-    if(wins===9 && losses<9){alert("🎉 Tillykke! Du vandt Wingman!\nScore: "+wins+" - "+losses); location.reload();}
-    if(losses===9 && wins<9){alert("💀 Du tabte Wingman!\nScore: "+wins+" - "+losses); location.reload();}
-    if(wins===8 && losses===8){alert("🤝 Wingman endte uafgjort 8-8"); location.reload();}
-  }
+
+
+// WIN / LOSE
+
+function win(){
+
+wins++
+document.getElementById("wins").innerText=wins
+nextRound()
+
 }
+
+function lose(){
+
+losses++
+document.getElementById("losses").innerText=losses
+nextRound()
+
+}
+
+
 
 function nextRound(){
-  round++;
-  if(currentMode==="Competitive"){
-    if(round===13 && !overtime){side = side==="CT"?"T":"CT"; alert("Siderne er skiftet!");}
-    if(overtime && round===28){side = side==="CT"?"T":"CT"; alert("Overtime sideskift!");}
-  } else if(currentMode==="Wingman"){
-    if(round===9){side = side==="CT"?"T":"CT"; alert("Siderne skifter i Wingman!");}
-  }
-  updateUI();
+
+round++
+updateUI()
+
 }
 
-function win(){wins++; document.getElementById("wins").innerText=wins; checkWin(); nextRound();}
-function lose(){losses++; document.getElementById("losses").innerText=losses; checkWin(); nextRound();}
-function endGame(){location.reload();}
+
+
+function endGame(){
+
+location.reload()
+
+}
+
 </script>
 
 </body>
