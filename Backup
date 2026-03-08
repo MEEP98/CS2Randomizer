@@ -124,7 +124,6 @@ let losses=0
 let currentMode=""
 let currentMap=""
 
-
 const mapsByMode={
 
 Competitive:[
@@ -139,7 +138,6 @@ Wingman:[
 Druk:[]
 
 }
-
 
 
 // STANDARD CHALLENGES
@@ -160,66 +158,18 @@ const standardChallenges=[
 
 const competitiveMapChallenges={
 
-"Anubis":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Overpass":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Inferno":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Mirage":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Dust 2":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Nuke":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Ancient":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Train":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Vertigo":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Office":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Italy":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Andet":[
-
-{title:"Test",text:"Dette er en test"},
-
-]
+"Anubis":[{title:"Map Test",text:"Competitive Anubis virker"}],
+"Overpass":[{title:"Map Test",text:"Competitive Overpass virker"}],
+"Inferno":[{title:"Map Test",text:"Competitive Inferno virker"}],
+"Mirage":[{title:"Map Test",text:"Competitive Mirage virker"}],
+"Dust 2":[{title:"Map Test",text:"Competitive Dust2 virker"}],
+"Nuke":[{title:"Map Test",text:"Competitive Nuke virker"}],
+"Ancient":[{title:"Map Test",text:"Competitive Ancient virker"}],
+"Train":[{title:"Map Test",text:"Competitive Train virker"}],
+"Vertigo":[{title:"Map Test",text:"Competitive Vertigo virker"}],
+"Office":[{title:"Map Test",text:"Competitive Office virker"}],
+"Italy":[{title:"Map Test",text:"Competitive Italy virker"}],
+"Andet":[{title:"Map Test",text:"Competitive Andet virker"}]
 
 }
 
@@ -229,31 +179,11 @@ const competitiveMapChallenges={
 
 const wingmanMapChallenges={
 
-"Overpass":[
-
-
-
-],
-"Vertigo":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Nuke":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Inferno":[
-
-{title:"Test",text:"Dette er en test"},
-
-],
-"Andet":[
-
-{title:"Test",text:"Dette er en test"},
-
-]
+"Overpass":[{title:"Map Test",text:"Wingman Overpass virker"}],
+"Vertigo":[{title:"Map Test",text:"Wingman Vertigo virker"}],
+"Nuke":[{title:"Map Test",text:"Wingman Nuke virker"}],
+"Inferno":[{title:"Map Test",text:"Wingman Inferno virker"}],
+"Andet":[{title:"Map Test",text:"Wingman Andet virker"}]
 
 }
 
@@ -335,22 +265,32 @@ document.getElementById("setup").innerHTML=`
 
 
 
-// RANDOM CHALLENGE SYSTEM
+// 50/50 CHALLENGE SYSTEM
 
 function randomChallenge(){
 
-let pool=[...standardChallenges]
+let useMap = Math.random() < 0.5
 
-if(currentMode==="Competitive" && competitiveMapChallenges[currentMap]){
+let pool=[]
 
-pool=pool.concat(competitiveMapChallenges[currentMap])
+if(useMap){
+
+if(currentMode==="Competitive"){
+pool=competitiveMapChallenges[currentMap] || []
+}
+
+if(currentMode==="Wingman"){
+pool=wingmanMapChallenges[currentMap] || []
+}
 
 }
 
-if(currentMode==="Wingman" && wingmanMapChallenges[currentMap]){
+if(pool.length===0){
+pool=standardChallenges
+}
 
-pool=pool.concat(wingmanMapChallenges[currentMap])
-
+if(!useMap){
+pool=standardChallenges
 }
 
 let c=pool[Math.floor(Math.random()*pool.length)]
@@ -366,6 +306,8 @@ return c
 function startGame(s){
 
 side=s
+
+document.getElementById("modeDisplay").innerText=currentMode
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
