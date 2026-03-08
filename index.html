@@ -124,6 +124,7 @@ let losses=0
 let currentMode=""
 let currentMap=""
 
+
 const mapsByMode={
 
 Competitive:[
@@ -138,6 +139,7 @@ Wingman:[
 Druk:[]
 
 }
+
 
 
 // STANDARD CHALLENGES
@@ -158,18 +160,18 @@ const standardChallenges=[
 
 const competitiveMapChallenges={
 
-"Anubis":[{title:"Map Test",text:"Competitive Anubis virker"}],
-"Overpass":[{title:"Map Test",text:"Competitive Overpass virker"}],
-"Inferno":[{title:"Map Test",text:"Competitive Inferno virker"}],
-"Mirage":[{title:"Map Test",text:"Competitive Mirage virker"}],
-"Dust 2":[{title:"Map Test",text:"Competitive Dust2 virker"}],
-"Nuke":[{title:"Map Test",text:"Competitive Nuke virker"}],
-"Ancient":[{title:"Map Test",text:"Competitive Ancient virker"}],
-"Train":[{title:"Map Test",text:"Competitive Train virker"}],
-"Vertigo":[{title:"Map Test",text:"Competitive Vertigo virker"}],
-"Office":[{title:"Map Test",text:"Competitive Office virker"}],
-"Italy":[{title:"Map Test",text:"Competitive Italy virker"}],
-"Andet":[{title:"Map Test",text:"Competitive Andet virker"}]
+"Anubis":[],
+"Overpass":[],
+"Inferno":[],
+"Mirage":[],
+"Dust 2":[],
+"Nuke":[],
+"Ancient":[],
+"Train":[],
+"Vertigo":[],
+"Office":[],
+"Italy":[],
+"Andet":[]
 
 }
 
@@ -179,11 +181,11 @@ const competitiveMapChallenges={
 
 const wingmanMapChallenges={
 
-"Overpass":[{title:"Map Test",text:"Wingman Overpass virker"}],
-"Vertigo":[{title:"Map Test",text:"Wingman Vertigo virker"}],
-"Nuke":[{title:"Map Test",text:"Wingman Nuke virker"}],
-"Inferno":[{title:"Map Test",text:"Wingman Inferno virker"}],
-"Andet":[{title:"Map Test",text:"Wingman Andet virker"}]
+"Overpass":[],
+"Vertigo":[],
+"Nuke":[],
+"Inferno":[],
+"Andet":[]
 
 }
 
@@ -265,32 +267,22 @@ document.getElementById("setup").innerHTML=`
 
 
 
-// 50/50 CHALLENGE SYSTEM
+// RANDOM CHALLENGE SYSTEM
 
 function randomChallenge(){
 
-let useMap = Math.random() < 0.5
+let pool=[...standardChallenges]
 
-let pool=[]
+if(currentMode==="Competitive" && competitiveMapChallenges[currentMap]){
 
-if(useMap){
-
-if(currentMode==="Competitive"){
-pool=competitiveMapChallenges[currentMap] || []
-}
-
-if(currentMode==="Wingman"){
-pool=wingmanMapChallenges[currentMap] || []
-}
+pool=pool.concat(competitiveMapChallenges[currentMap])
 
 }
 
-if(pool.length===0){
-pool=standardChallenges
-}
+if(currentMode==="Wingman" && wingmanMapChallenges[currentMap]){
 
-if(!useMap){
-pool=standardChallenges
+pool=pool.concat(wingmanMapChallenges[currentMap])
+
 }
 
 let c=pool[Math.floor(Math.random()*pool.length)]
@@ -306,8 +298,6 @@ return c
 function startGame(s){
 
 side=s
-
-document.getElementById("modeDisplay").innerText=currentMode
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
