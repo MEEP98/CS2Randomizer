@@ -160,18 +160,66 @@ const standardChallenges=[
 
 const competitiveMapChallenges={
 
-"Anubis":[],
-"Overpass":[],
-"Inferno":[],
-"Mirage":[],
-"Dust 2":[],
-"Nuke":[],
-"Ancient":[],
-"Train":[],
-"Vertigo":[],
-"Office":[],
-"Italy":[],
-"Andet":[]
+"Anubis":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Overpass":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Inferno":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Mirage":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Dust 2":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Nuke":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Ancient":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Train":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Vertigo":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Office":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Italy":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Andet":[
+
+{title:"Test",text:"Dette er en test"},
+
+]
 
 }
 
@@ -181,11 +229,31 @@ const competitiveMapChallenges={
 
 const wingmanMapChallenges={
 
-"Overpass":[],
-"Vertigo":[],
-"Nuke":[],
-"Inferno":[],
-"Andet":[]
+"Overpass":[
+
+
+
+],
+"Vertigo":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Nuke":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Inferno":[
+
+{title:"Test",text:"Dette er en test"},
+
+],
+"Andet":[
+
+{title:"Test",text:"Dette er en test"},
+
+]
 
 }
 
