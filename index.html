@@ -65,12 +65,15 @@ font-weight:bold;
 <h1>CS2 Challenges</h1>
 
 <div id="setup">
-<p>Vælg start side</p>
-<button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
-<button class="primary" onclick="startGame('T')">Start som Terrorist</button>
+<p>Vælg Game Mode</p>
+<button class="primary" onclick="selectMode('Competitive')">Competitive</button>
+<button class="primary" onclick="selectMode('Wingman')">Wingman</button>
+<button class="primary" onclick="selectMode('Druk')">Druk</button>
 </div>
 
 <div id="game" style="display:none;">
+<p><b>Mode:</b> <span id="modeDisplay"></span></p>
+<p><b>Map:</b> <span id="mapDisplay"></span></p>
 <p><b>Runde:</b> <span id="round"></span></p>
 <p><b>Side:</b> <span id="side"></span></p>
 
@@ -96,11 +99,20 @@ font-weight:bold;
 </div>
 
 <script>
+// ===== Variabler =====
 let round=1;
 let side="";
 let overtime=false;
 let wins=0;
 let losses=0;
+let currentMode="";
+let currentMap="";
+
+const mapsByMode = {
+  "Competitive":["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
+  "Wingman":["Overpass","Vertigo","Nuke","Inferno","Andet"],
+  "Druk":[] // placeholder
+};
 
 const weapons=["AK-47","M4A1-S","M4A4","AWP","Desert Eagle","MP9","P90","Nova","MAG-7","Galil","Famas","SSG 08"];
 
@@ -125,100 +137,76 @@ const tChallenges=[
 {title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}
 ];
 
+// ===== Funktionskode =====
+function selectMode(mode){
+  currentMode = mode;
+  document.getElementById("modeDisplay").innerText = mode;
+  let mapButtons = mapsByMode[mode].map(m => `<button class="primary" onclick="selectMap('${m}')">${m}</button>`).join("");
+  document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons;
+}
+
+function selectMap(map){
+  currentMap = map;
+  document.getElementById("mapDisplay").innerText = map;
+  document.getElementById("setup").innerHTML = `
+    <p>Valgt Mode: ${currentMode}</p>
+    <p>Valgt Map: ${currentMap}</p>
+    <p>Vælg start side</p>
+    <button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
+    <button class="primary" onclick="startGame('T')">Start som Terrorist</button>
+  `;
+}
+
 function randomWeapon(){return weapons[Math.floor(Math.random()*weapons.length)];}
 
 function randomChallenge(){
-let pool=[...generalChallenges];
-if(side==="CT") pool.push(...ctChallenges);
-if(side==="T") pool.push(...tChallenges);
-let c=pool[Math.floor(Math.random()*pool.length)];
-if(Math.random()<0.25){
-return {title:"Våben Roulette",text:"Du må kun bruge "+randomWeapon()+" denne runde."};
-}
-return c;
+  let pool=[...generalChallenges];
+  if(side==="CT") pool.push(...ctChallenges);
+  if(side==="T") pool.push(...tChallenges);
+  let c = pool[Math.floor(Math.random()*pool.length)];
+  if(Math.random()<0.25){return {title:"Våben Roulette",text:"Du må kun bruge "+randomWeapon()+" denne runde."};}
+  return c;
 }
 
 function startGame(s){
-side=s;
-document.getElementById("setup").style.display="none";
-document.getElementById("game").style.display="block";
-updateUI();
+  side = s;
+  document.getElementById("setup").style.display="none";
+  document.getElementById("game").style.display="block";
+  updateUI();
 }
 
 function updateUI(){
-document.getElementById("round").innerText=round;
-document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist";
-let c=randomChallenge();
-document.getElementById("challenge").innerHTML="<div class='challengeTitle'>"+c.title+"</div><div class='challengeText'>"+c.text+"</div>";
+  document.getElementById("round").innerText=round;
+  document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist";
+  let c=randomChallenge();
+  document.getElementById("challenge").innerHTML="<div class='challengeTitle'>"+c.title+"</div><div class='challengeText'>"+c.text+"</div>";
 }
 
-// Tjek for automatisk kampvind/over
+// ===== Win/lose logik =====
 function checkWin(){
-if(!overtime){
-  if(wins===13 && losses<12){
-    alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses);
-    location.reload();
+  if(!overtime){
+    if(wins===13 && losses<12){alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses); location.reload();}
+    if(losses===13 && wins<12){alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses); location.reload();}
+    if(wins===12 && losses===12){alert("⚔️ 12-12! Overtime starter!"); overtime=true;}
+  }else{
+    if(wins===16 && losses<15){alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses); location.reload();}
+    if(losses===16 && wins<15){alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses); location.reload();}
+    if(wins===15 && losses===15){alert("🤝 15-15! Kampen endte uafgjort."); location.reload();}
   }
-  if(losses===13 && wins<12){
-    alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses);
-    location.reload();
-  }
-  if(wins===12 && losses===12){
-    alert("⚔️ 12-12! Overtime starter!");
-    overtime=true;
-  }
-}else{
-  if(wins===16 && losses<15){
-    alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses);
-    location.reload();
-  }
-  if(losses===16 && wins<15){
-    alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses);
-    location.reload();
-  }
-  if(wins===15 && losses===15){
-    alert("🤝 15-15! Kampen endte uafgjort.");
-    location.reload();
-  }
-}
-
 }
 
 function nextRound(){
-round++;
-
-// Normal sideskift ved runde 13
-if(round===13 && !overtime){
-  side = side==="CT"?"T":"CT";
-  alert("Siderne er skiftet!");
+  round++;
+  // Normal sideskift
+  if(round===13 && !overtime){side = side==="CT"?"T":"CT"; alert("Siderne er skiftet!");}
+  // Overtime sideskift
+  if(overtime && round===28){side = side==="CT"?"T":"CT"; alert("Overtime sideskift!");}
+  updateUI();
 }
 
-// Overtime sideskift ved runde 28
-if(overtime && round===28){
-  side = side==="CT"?"T":"CT";
-  alert("Overtime sideskift!");
-}
-
-updateUI();
-}
-
-function win(){
-wins++;
-document.getElementById("wins").innerText=wins;
-checkWin();
-nextRound();
-}
-
-function lose(){
-losses++;
-document.getElementById("losses").innerText=losses;
-checkWin();
-nextRound();
-}
-
-function endGame(){
-location.reload();
-}
+function win(){wins++; document.getElementById("wins").innerText=wins; checkWin(); nextRound();}
+function lose(){losses++; document.getElementById("losses").innerText=losses; checkWin(); nextRound();}
+function endGame(){location.reload();}
 </script>
 
 </body>
