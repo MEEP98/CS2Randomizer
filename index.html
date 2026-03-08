@@ -31,10 +31,6 @@ width:90%;
 text-align:center;
 }
 
-h1{
-margin-top:0;
-}
-
 .challengeTitle{
 font-size:22px;
 font-weight:bold;
@@ -57,25 +53,10 @@ font-weight:bold;
 cursor:pointer;
 }
 
-.primary{
-background:#00ffff;
-color:#111;
-}
-
-.win{
-background:#28a745;
-color:white;
-}
-
-.loss{
-background:#dc3545;
-color:white;
-}
-
-.danger{
-background:#ff4c4c;
-color:white;
-}
+.primary{background:#00ffff;color:#111;}
+.win{background:#28a745;color:white;}
+.loss{background:#dc3545;color:white;}
+.danger{background:#ff4c4c;color:white;}
 
 .scoreboard{
 display:flex;
@@ -91,23 +72,11 @@ text-align:center;
 font-weight:bold;
 }
 
-.winBox{
-background:#1f5f2e;
-}
+.winBox{background:#1f5f2e;}
+.lossBox{background:#5f1f1f;}
 
-.lossBox{
-background:#5f1f1f;
-}
-
-.scoreLabel{
-font-size:14px;
-opacity:0.8;
-}
-
-.scoreNumber{
-font-size:22px;
-margin-top:4px;
-}
+.scoreLabel{font-size:14px;opacity:0.8;}
+.scoreNumber{font-size:22px;margin-top:4px;}
 
 </style>
 
@@ -123,13 +92,8 @@ margin-top:4px;
 
 <p>Vælg start side</p>
 
-<button class="primary" onclick="startGame('CT')">
-Start som Counter-Terrorist
-</button>
-
-<button class="primary" onclick="startGame('T')">
-Start som Terrorist
-</button>
+<button class="primary" onclick="startGame('CT')">Start som Counter-Terrorist</button>
+<button class="primary" onclick="startGame('T')">Start som Terrorist</button>
 
 </div>
 
@@ -140,13 +104,8 @@ Start som Terrorist
 
 <div id="challenge"></div>
 
-<button class="win" onclick="win()">
-Vandt runde
-</button>
-
-<button class="loss" onclick="lose()">
-Tabte runde
-</button>
+<button class="win" onclick="win()">Vandt runde</button>
+<button class="loss" onclick="lose()">Tabte runde</button>
 
 <div class="scoreboard">
 
@@ -162,9 +121,7 @@ Tabte runde
 
 </div>
 
-<button class="danger" onclick="endGame()">
-Afslut kamp
-</button>
+<button class="danger" onclick="endGame()">Afslut kamp</button>
 
 </div>
 
@@ -180,18 +137,8 @@ let wins=0
 let losses=0
 
 const weapons=[
-"AK-47",
-"M4A1-S",
-"M4A4",
-"AWP",
-"Desert Eagle",
-"MP9",
-"P90",
-"Nova",
-"MAG-7",
-"Galil",
-"Famas",
-"SSG 08"
+"AK-47","M4A1-S","M4A4","AWP","Desert Eagle",
+"MP9","P90","Nova","MAG-7","Galil","Famas","SSG 08"
 ]
 
 const generalChallenges=[
@@ -208,17 +155,13 @@ const generalChallenges=[
 ]
 
 const ctChallenges=[
-
 {title:"Bombens beskytter",text:"Du må ikke forlade sitet du starter på."},
 {title:"Hero defuse",text:"Hvis bomben plantes SKAL du forsøge defuse."}
-
 ]
 
 const tChallenges=[
-
 {title:"Entry fragger",text:"Du skal være første spiller ind på sitet."},
 {title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}
-
 ]
 
 function randomWeapon(){
@@ -261,14 +204,66 @@ updateUI()
 function updateUI(){
 
 document.getElementById("round").innerText=round
-
-document.getElementById("side").innerText=
-side==="CT"?"Counter-Terrorist":"Terrorist"
+document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist"
 
 let c=randomChallenge()
 
 document.getElementById("challenge").innerHTML=
 "<div class='challengeTitle'>"+c.title+"</div><div class='challengeText'>"+c.text+"</div>"
+
+}
+
+function checkWin(){
+
+if(!overtime){
+
+if(wins===13 && losses<12){
+
+alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses)
+location.reload()
+
+}
+
+if(losses===13 && wins<12){
+
+alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses)
+location.reload()
+
+}
+
+if(wins===12 && losses===12){
+
+alert("⚔️ 12-12! Overtime starter!")
+overtime=true
+
+}
+
+}
+
+else{
+
+if(wins===16 && losses<15){
+
+alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses)
+location.reload()
+
+}
+
+if(losses===16 && wins<15){
+
+alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses)
+location.reload()
+
+}
+
+if(wins===15 && losses===15){
+
+alert("🤝 15-15! Kampen endte uafgjort.")
+location.reload()
+
+}
+
+}
 
 }
 
@@ -283,41 +278,6 @@ alert("Siderne er skiftet!")
 
 }
 
-if(round===25 && !overtime){
-
-if(confirm("Overtime?")){
-
-overtime=true
-
-}else{
-
-alert("Kamp slut!")
-location.reload()
-return
-
-}
-
-}
-
-if(overtime){
-
-if(round===28){
-
-side=side==="CT"?"T":"CT"
-alert("Overtime sideskift!")
-
-}
-
-if(round>30){
-
-alert("Overtime slut!")
-location.reload()
-return
-
-}
-
-}
-
 updateUI()
 
 }
@@ -327,6 +287,8 @@ function win(){
 wins++
 document.getElementById("wins").innerText=wins
 
+checkWin()
+
 nextRound()
 
 }
@@ -335,6 +297,8 @@ function lose(){
 
 losses++
 document.getElementById("losses").innerText=losses
+
+checkWin()
 
 nextRound()
 
