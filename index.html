@@ -5,54 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CS2 Challenge Generator</title>
 <style>
-body{
-margin:0;
-background:#121212;
-color:white;
-font-family:Segoe UI, sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-}
-.container{
-background:#1f1f1f;
-padding:25px;
-border-radius:12px;
-box-shadow:0 0 15px rgba(0,255,255,0.2);
-max-width:420px;
-width:90%;
-text-align:center;
-}
+body{margin:0;background:#121212;color:white;font-family:Segoe UI, sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+.container{background:#1f1f1f;padding:25px;border-radius:12px;box-shadow:0 0 15px rgba(0,255,255,0.2);max-width:420px;width:90%;text-align:center;}
 h1{margin-top:0;}
 .challengeTitle{font-size:22px;font-weight:bold;margin-bottom:10px;}
 .challengeText{font-size:18px;margin-bottom:20px;}
-button{
-width:100%;
-padding:14px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-}
+button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;}
 .primary{background:#00ffff;color:#111;}
 .win{background:#28a745;color:white;}
 .loss{background:#dc3545;color:white;}
 .danger{background:#ff4c4c;color:white;}
-.scoreboard{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-.scoreBox{
-flex:1;
-padding:12px;
-border-radius:8px;
-text-align:center;
-font-weight:bold;
-}
+.scoreboard{display:flex;gap:10px;margin-top:15px;}
+.scoreBox{flex:1;padding:12px;border-radius:8px;text-align:center;font-weight:bold;}
 .winBox{background:#1f5f2e;}
 .lossBox{background:#5f1f1f;}
 .scoreLabel{font-size:14px;opacity:0.8;}
@@ -111,7 +75,7 @@ let currentMap="";
 const mapsByMode = {
   "Competitive":["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
   "Wingman":["Overpass","Vertigo","Nuke","Inferno","Andet"],
-  "Druk":[] // placeholder
+  "Druk":[] 
 };
 
 const weapons=["AK-47","M4A1-S","M4A4","AWP","Desert Eagle","MP9","P90","Nova","MAG-7","Galil","Famas","SSG 08"];
@@ -141,6 +105,10 @@ const tChallenges=[
 function selectMode(mode){
   currentMode = mode;
   document.getElementById("modeDisplay").innerText = mode;
+  if(mode==="Druk"){
+    document.getElementById("setup").innerHTML = `<p>Kommer snart</p>`;
+    return;
+  }
   let mapButtons = mapsByMode[mode].map(m => `<button class="primary" onclick="selectMap('${m}')">${m}</button>`).join("");
   document.getElementById("setup").innerHTML = `<p>Vælg Map (${mode})</p>` + mapButtons;
 }
@@ -184,23 +152,31 @@ function updateUI(){
 
 // ===== Win/lose logik =====
 function checkWin(){
-  if(!overtime){
-    if(wins===13 && losses<12){alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses); location.reload();}
-    if(losses===13 && wins<12){alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses); location.reload();}
-    if(wins===12 && losses===12){alert("⚔️ 12-12! Overtime starter!"); overtime=true;}
-  }else{
-    if(wins===16 && losses<15){alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses); location.reload();}
-    if(losses===16 && wins<15){alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses); location.reload();}
-    if(wins===15 && losses===15){alert("🤝 15-15! Kampen endte uafgjort."); location.reload();}
+  if(currentMode==="Competitive"){
+    if(!overtime){
+      if(wins===13 && losses<12){alert("🎉 Tillykke! Du vandt kampen!\nScore: "+wins+" - "+losses); location.reload();}
+      if(losses===13 && wins<12){alert("💀 Du tabte kampen!\nScore: "+wins+" - "+losses); location.reload();}
+      if(wins===12 && losses===12){alert("⚔️ 12-12! Overtime starter!"); overtime=true;}
+    }else{
+      if(wins===16 && losses<15){alert("🎉 Tillykke! Du vandt i overtime!\nScore: "+wins+" - "+losses); location.reload();}
+      if(losses===16 && wins<15){alert("💀 Du tabte i overtime!\nScore: "+wins+" - "+losses); location.reload();}
+      if(wins===15 && losses===15){alert("🤝 15-15! Kampen endte uafgjort."); location.reload();}
+    }
+  } else if(currentMode==="Wingman"){
+    if(wins===9 && losses<9){alert("🎉 Tillykke! Du vandt Wingman!\nScore: "+wins+" - "+losses); location.reload();}
+    if(losses===9 && wins<9){alert("💀 Du tabte Wingman!\nScore: "+wins+" - "+losses); location.reload();}
+    if(wins===8 && losses===8){alert("🤝 Wingman endte uafgjort 8-8"); location.reload();}
   }
 }
 
 function nextRound(){
   round++;
-  // Normal sideskift
-  if(round===13 && !overtime){side = side==="CT"?"T":"CT"; alert("Siderne er skiftet!");}
-  // Overtime sideskift
-  if(overtime && round===28){side = side==="CT"?"T":"CT"; alert("Overtime sideskift!");}
+  if(currentMode==="Competitive"){
+    if(round===13 && !overtime){side = side==="CT"?"T":"CT"; alert("Siderne er skiftet!");}
+    if(overtime && round===28){side = side==="CT"?"T":"CT"; alert("Overtime sideskift!");}
+  } else if(currentMode==="Wingman"){
+    if(round===5){side = side==="CT"?"T":"CT"; alert("Siderne skifter i Wingman!");}
+  }
   updateUI();
 }
 
