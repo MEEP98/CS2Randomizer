@@ -140,6 +140,7 @@ Druk:[]
 }
 
 
+
 // STANDARD CHALLENGES
 
 const standardChallenges=[
@@ -245,8 +246,6 @@ function selectMap(map){
 
 currentMap=map
 
-document.getElementById("mapDisplay").innerText=map
-
 document.getElementById("setup").innerHTML=`
 
 <p>Valgt Mode: ${currentMode}</p>
@@ -269,27 +268,22 @@ document.getElementById("setup").innerHTML=`
 
 function randomChallenge(){
 
-let useMap = Math.random() < 0.5
+let useMapChallenge=Math.random()<0.5
+let pool
 
-let pool=[]
-
-if(useMap){
+if(useMapChallenge){
 
 if(currentMode==="Competitive"){
-pool=competitiveMapChallenges[currentMap] || []
+pool=competitiveMapChallenges[currentMap]
 }
 
-if(currentMode==="Wingman"){
-pool=wingmanMapChallenges[currentMap] || []
+else if(currentMode==="Wingman"){
+pool=wingmanMapChallenges[currentMap]
 }
 
 }
 
-if(pool.length===0){
-pool=standardChallenges
-}
-
-if(!useMap){
+if(!pool || pool.length===0){
 pool=standardChallenges
 }
 
@@ -308,6 +302,7 @@ function startGame(s){
 side=s
 
 document.getElementById("modeDisplay").innerText=currentMode
+document.getElementById("mapDisplay").innerText=currentMap
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
