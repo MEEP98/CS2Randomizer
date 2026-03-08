@@ -1,24 +1,24 @@
 <body style="
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#121212;
-  font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
-  color:#f0f0f0;
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#121212;
+font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+color:#f0f0f0;
 ">
 
 <div style="
-  background:#1f1f1f;
-  padding:30px 40px;
-  border-radius:12px;
-  box-shadow:0 0 15px rgba(0,255,255,0.2);
-  max-width:450px;
-  text-align:center;
+background:#1f1f1f;
+padding:30px 40px;
+border-radius:12px;
+box-shadow:0 0 15px rgba(0,255,255,0.2);
+max-width:450px;
+text-align:center;
 ">
 
-<h1 style="margin-bottom:15px;">CS2 Challenge</h1>
+<h1>CS2 Challenge</h1>
 
 <div id="setup">
 <p>Choose starting side:</p>
@@ -29,7 +29,7 @@
 
 <div id="game" style="display:none;">
 
-<p><strong>Round:</strong> <span id="round">1</span></p>
+<p><strong>Round:</strong> <span id="round"></span></p>
 <p><strong>Side:</strong> <span id="side"></span></p>
 
 <div id="challenge" style="
@@ -73,21 +73,23 @@ End Game
 
 let round = 1
 let side = ""
+let startSide = ""
+let overtime = false
 
 const challenges = [
 
 "Hold W until the bomb is planted",
 "Buy the cheapest weapon available",
-"Only aim for headshots this round",
-"Do not reload until the magazine is empty",
-"Use pistol only",
+"Pistol only",
+"No reloading until empty",
 "Follow the first teammate you see",
-"Walk the entire round (no running)",
+"Walk only this round",
+"Rush the bombsite instantly",
 "Throw all grenades immediately",
 "Camp the first corner you reach",
+"Only headshots allowed",
 "Swap weapon with a teammate",
-"Do not use your crosshair (hip instinct)",
-"Rush the bombsite immediately"
+"Do not scope this round"
 
 ]
 
@@ -95,9 +97,10 @@ function randomChallenge(){
 return challenges[Math.floor(Math.random()*challenges.length)]
 }
 
-function startGame(startSide){
+function startGame(s){
 
-side = startSide
+side = s
+startSide = s
 
 document.getElementById("setup").style.display="none"
 document.getElementById("game").style.display="block"
@@ -118,11 +121,55 @@ function nextRound(){
 
 round++
 
-if(round === 13){
+if(round === 13 && !overtime){
 
 side = side === "CT" ? "T" : "CT"
 
 alert("Sides have switched!")
+
+}
+
+if(round === 25 && !overtime){
+
+let ot = confirm("Overtime?")
+
+if(ot){
+
+overtime = true
+
+alert("Overtime started!")
+
+}else{
+
+alert("Match ended!")
+
+location.reload()
+
+return
+
+}
+
+}
+
+if(overtime){
+
+if(round === 28){
+
+side = side === "CT" ? "T" : "CT"
+
+alert("Overtime side switch!")
+
+}
+
+if(round > 30){
+
+alert("Overtime finished!")
+
+location.reload()
+
+return
+
+}
 
 }
 
