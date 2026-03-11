@@ -208,22 +208,6 @@ function checkWin(){
   }
 }
 
-  // ===== Win/Loss =====
-function win(){ wins++; consecutiveLosses=0; round++; nextChallenge=getNextChallenge(side); updateUI();}
-function lose(){ losses++; consecutiveLosses++; round++; nextChallenge=getNextChallenge(side); updateUI();}
-
-// ===== Economy =====
-function calculateNextRoundEconomy(won){
-  let pistolRound = (round===1 || round===13);
-  if(won){ return 3250; }
-  else{
-    if(pistolRound) return 1900;
-    let money = 1400 + (consecutiveLosses-1)*500;
-    if(money>3400) money=3400;
-    return money;
-  }
-}
-
 function nextRound(){ 
   round++; 
   if(currentMode==="Competitive"){ 
