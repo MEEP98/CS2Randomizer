@@ -81,17 +81,33 @@ const wingmanMapChallenges={/* ... holdes uændret */};
 
 // ===== ØKONOMI =====
 let ecoLossStreak=0;
-function updateEconomy() {
-  const winCash=3250;
-  const baseLoss=1400, increment=500, maxLoss=3400;
-  let lossCash=baseLoss + (ecoLossStreak-1)*increment;
-  if(lossCash>maxLoss) lossCash=maxLoss;
-  document.querySelector(".ecoWin").innerText=winCash+"$";
-  document.querySelector(".ecoLoss").innerText=lossCash+"$";
-}
 
-// ===== Game Over Lock =====
+// ===== GAME OVER FLAG =====
 let gameOver=false;
+
+// ===== Update Economy med pistolrunde-regel =====
+function updateEconomy() {
+  const winCash = 3250;
+  const baseLoss = 1400;
+  const increment = 500;
+  const maxLoss = 3400;
+
+  let lossCash;
+
+  const pistolRounds = (currentMode === "Competitive") ? [1, 13] :
+                       (currentMode === "Wingman") ? [1, 9] : [];
+
+  if (pistolRounds.includes(round) && ecoLossStreak === 0) {
+    lossCash = 1900; // pistolrunde
+  } else {
+    lossCash = baseLoss + (ecoLossStreak - 1) * increment;
+    if (lossCash > maxLoss) lossCash = maxLoss;
+    if (lossCash < baseLoss) lossCash = baseLoss;
+  }
+
+  document.querySelector(".ecoWin").innerText = winCash + "$";
+  document.querySelector(".ecoLoss").innerText = lossCash + "$";
+}
 
 // ===== Setup UI =====
 function showSetup(){
