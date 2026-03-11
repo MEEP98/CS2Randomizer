@@ -193,7 +193,7 @@ let ecoLossStreak = 0;
 
 function updateEconomy() {
   const winCash = 3250;
-  const lossCashStreak = [1400, 1900, 2400, 2900];
+  const lossCashStreak = [1400, 1900, 2400, 2900, 3400];
   let lossCash = lossCashStreak[Math.min(ecoLossStreak, lossCashStreak.length - 1)];
   document.querySelector(".ecoWin").innerText = winCash + "$";
   document.querySelector(".ecoLoss").innerText = lossCash + "$";
