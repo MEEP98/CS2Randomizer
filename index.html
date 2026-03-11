@@ -85,25 +85,16 @@ let ecoLossStreak=0;
 // ===== GAME OVER FLAG =====
 let gameOver=false;
 
-// ===== Update Economy med pistolrunde-regel =====
+// ===== Update Economy standard =====
 function updateEconomy() {
   const winCash = 3250;
   const baseLoss = 1400;
   const increment = 500;
   const maxLoss = 3400;
 
-  let lossCash;
-
-  const pistolRounds = (currentMode === "Competitive") ? [1, 13] :
-                       (currentMode === "Wingman") ? [1, 9] : [];
-
-  if (pistolRounds.includes(round) && ecoLossStreak === 0) {
-    lossCash = 1900; // pistolrunde
-  } else {
-    lossCash = baseLoss + (ecoLossStreak - 1) * increment;
-    if (lossCash > maxLoss) lossCash = maxLoss;
-    if (lossCash < baseLoss) lossCash = baseLoss;
-  }
+  let lossCash = baseLoss + (ecoLossStreak - 1) * increment;
+  if(lossCash > maxLoss) lossCash = maxLoss;
+  if(lossCash < baseLoss) lossCash = baseLoss;
 
   document.querySelector(".ecoWin").innerText = winCash + "$";
   document.querySelector(".ecoLoss").innerText = lossCash + "$";
@@ -193,7 +184,6 @@ function showOverlay(message, showButton=false){
     btn.onclick=resetGame;
     overlay.appendChild(btn);
 
-    // Lås spil-knapper når kampen er slut
     gameOver = true; 
     document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=true);
   }
