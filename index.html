@@ -137,14 +137,36 @@ function startGame(s){
 
 // ===== Economy =====
 function calculateNextRoundEconomy(won){
-  let pistolRound=(round===1||round===13);
-  if(won) return 3250;
-  else{
+  let pistolRound=(round===1 || round===13);
+  if(won){
+    // Win penge på pistolrunde er lavere: $1,900 hvis pistol
+    return pistolRound ? 1900 : 3250;
+  } else {
+    // Loss bonus
     if(pistolRound) return 1900;
     let money = 1400 + (consecutiveLosses-1)*500;
     if(money>3400) money=3400;
     return money;
   }
+}
+
+// ===== Next Round Logic =====
+function nextRound(){ 
+  round++; 
+  // Side skift logik
+  let sideChange = false;
+  if(currentMode==="Competitive"){ 
+    if((round===13 && !overtime) || (overtime && round===28)){ sideChange = true; }
+  } else if(currentMode==="Wingman"){ 
+    if(round===9){ sideChange = true; }
+  }
+  if(sideChange){
+    side = side==="CT"?"T":"CT"; 
+    consecutiveLosses=0; // nulstil loss bonus ved side swap
+    showOverlay(sideChange && overtime?"Overtime sideskift!":"Siderne er skiftet!");
+  }
+
+  updateUI();
 }
 
 // ===== UI Update =====
