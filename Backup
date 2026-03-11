@@ -32,27 +32,11 @@ button:hover{transform: scale(1.05);}
 #overlay button{margin-top:15px;padding:10px 20px;font-size:16px;}
 @media(max-width:420px){.challengeTitle{font-size:20px;}.challengeText{font-size:16px;}button{font-size:14px;padding:12px;}}
 
-/* ===== ØKONOMI-BOKS CSS ===== */
-.ecoBox {
-  display: flex;
-  margin: 10px 0;
-  width: 100%;
-  height: 50px; /* samme højde som knapper */
-  border-radius: 8px;
-  overflow: hidden;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: default;
-}
-.ecoBox div {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-}
-.ecoWin { background-color: #28a745; }
-.ecoLoss { background-color: #dc3545; }
+/* ØKONOMI-BOKS CSS */
+.ecoBox {display:flex;margin:10px 0;width:100%;height:50px;border-radius:8px;overflow:hidden;font-weight:bold;font-size:16px;cursor:default;}
+.ecoBox div {flex:1;display:flex;justify-content:center;align-items:center;color:white;}
+.ecoWin {background-color:#28a745;}
+.ecoLoss {background-color:#dc3545;}
 </style>
 </head>
 <body>
@@ -68,7 +52,7 @@ button:hover{transform: scale(1.05);}
 <button class="win" onclick="win()">Vandt runde</button>
 <button class="loss" onclick="lose()">Tabte runde</button>
 
-<!-- ===== ØKONOMI-BOKS UNDER TABTE RUNDE ===== -->
+<!-- Økonomi-boks -->
 <div class="ecoBox">
   <div class="ecoWin">3250$</div>
   <div class="ecoLoss">1400$</div>
@@ -94,6 +78,20 @@ const ctChallenges=[{title:"Bombens beskytter",text:"Du må ikke forlade sitet d
 const tChallenges=[{title:"Entry fragger",text:"Du skal være første spiller ind på sitet."},{title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}];
 const competitiveMapChallenges={/* ... holdes uændret */};
 const wingmanMapChallenges={/* ... holdes uændret */};
+
+// ===== ØKONOMI =====
+let ecoLossStreak=0;
+function updateEconomy() {
+  const winCash=3250;
+  const baseLoss=1400, increment=500, maxLoss=3400;
+  let lossCash=baseLoss + (ecoLossStreak-1)*increment;
+  if(lossCash>maxLoss) lossCash=maxLoss;
+  document.querySelector(".ecoWin").innerText=winCash+"$";
+  document.querySelector(".ecoLoss").innerText=lossCash+"$";
+}
+
+// ===== Game Over Lock =====
+let gameOver=false;
 
 // ===== Setup UI =====
 function showSetup(){
@@ -148,7 +146,13 @@ function randomChallenge(){
   return c;
 }
 
-function startGame(s){ side=s; document.getElementById("setup").style.display="none"; document.getElementById("game").style.display="block"; updateUI(); }
+function startGame(s){ 
+  side=s; document.getElementById("setup").style.display="none"; document.getElementById("game").style.display="block"; 
+  updateUI(); 
+  gameOver=false; 
+  document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=false);
+}
+
 function updateUI(){ 
   document.getElementById("round").innerText=round; 
   document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist"; 
@@ -172,6 +176,10 @@ function showOverlay(message, showButton=false){
     btn.innerText="Afslut";
     btn.onclick=resetGame;
     overlay.appendChild(btn);
+
+    // Lås spil-knapper når kampen er slut
+    gameOver = true; 
+    document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=true);
   }
   overlay.style.display='block';
   overlay.style.opacity=1;
@@ -180,36 +188,31 @@ function showOverlay(message, showButton=false){
 
 function resetGame(){
   round=1; side=""; wins=0; losses=0; overtime=false; currentMode=""; currentMap="";
-  document.getElementById("wins").innerText="0"; document.getElementById("losses").innerText="0";
-  document.getElementById("setup").style.display="block"; document.getElementById("game").style.display="none";
+  document.getElementById("wins").innerText="0"; 
+  document.getElementById("losses").innerText="0";
+  document.getElementById("setup").style.display="block"; 
+  document.getElementById("game").style.display="none";
   document.getElementById("overlay").style.display="none";
-  ecoLossStreak = 0;
+
+  gameOver = false;
+  document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=false);
+
+  ecoLossStreak=0; 
   updateEconomy();
   showSetup();
 }
 
-// ===== ØKONOMI-BOKS JS =====
-let ecoLossStreak = 0;
-
-function updateEconomy() {
-  const winCash = 3250;
-  const lossCashStreak = [1400, 1900, 2400, 2900, 3400];
-  let lossCash = lossCashStreak[Math.min(ecoLossStreak, lossCashStreak.length - 1)];
-  document.querySelector(".ecoWin").innerText = winCash + "$";
-  document.querySelector(".ecoLoss").innerText = lossCash + "$";
-}
-
 // ===== Win/Loss Logic =====
 function win(){
-  wins++;
-  ecoLossStreak = 0;
+  if(gameOver) return;
+  wins++; ecoLossStreak=0;
   document.getElementById("wins").innerText=wins;
   animateContainer('win'); animateScore('wins'); checkWin(); nextRound(); updateEconomy();
 }
 
 function lose(){
-  losses++;
-  ecoLossStreak++;
+  if(gameOver) return;
+  losses++; ecoLossStreak++;
   document.getElementById("losses").innerText=losses;
   animateContainer('loss'); animateScore('losses'); checkWin(); nextRound(); updateEconomy();
 }
