@@ -264,11 +264,24 @@ function animateScore(id){ const el=document.getElementById(id); el.classList.re
 function showOverlay(message, showButton=false){
   const overlay=document.getElementById('overlay');
   overlay.innerHTML=`<div>${message}</div>`;
+
   if(showButton){
-    const btn=document.createElement("button"); btn.className="primary"; btn.innerText="Afslut"; btn.onclick=resetGame;
+    const btn=document.createElement("button");
+    btn.className="primary";
+    btn.innerText="Afslut";
+    btn.onclick=resetGame;
     overlay.appendChild(btn);
   }
-  overlay.style.display='block'; overlay.style.opacity=1;
+
+  overlay.style.display='block';
+  overlay.style.opacity=1;
+
+  // Auto-hide hvis der ikke er en knap
+  if(!showButton){
+    setTimeout(()=>{
+      overlay.style.display='none';
+    },2000); // 2 sekunder
+  }
 }
 
 function resetGame(){
