@@ -81,17 +81,24 @@ const wingmanMapChallenges={/* ... holdes uændret */};
 
 // ===== ØKONOMI =====
 let ecoLossStreak=0;
-function updateEconomy() {
-  const winCash=3250;
-  const baseLoss=1400, increment=500, maxLoss=3400;
-  let lossCash=baseLoss + (ecoLossStreak-1)*increment;
-  if(lossCash>maxLoss) lossCash=maxLoss;
-  document.querySelector(".ecoWin").innerText=winCash+"$";
-  document.querySelector(".ecoLoss").innerText=lossCash+"$";
-}
 
-// ===== Game Over Lock =====
+// ===== GAME OVER FLAG =====
 let gameOver=false;
+
+// ===== Update Economy standard =====
+function updateEconomy() {
+  const winCash = 3250;
+  const baseLoss = 1400;
+  const increment = 500;
+  const maxLoss = 3400;
+
+  let lossCash = baseLoss + (ecoLossStreak - 1) * increment;
+  if(lossCash > maxLoss) lossCash = maxLoss;
+  if(lossCash < baseLoss) lossCash = baseLoss;
+
+  document.querySelector(".ecoWin").innerText = winCash + "$";
+  document.querySelector(".ecoLoss").innerText = lossCash + "$";
+}
 
 // ===== Setup UI =====
 function showSetup(){
@@ -177,7 +184,6 @@ function showOverlay(message, showButton=false){
     btn.onclick=resetGame;
     overlay.appendChild(btn);
 
-    // Lås spil-knapper når kampen er slut
     gameOver = true; 
     document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=true);
   }
