@@ -199,9 +199,9 @@ function checkWin(){
     if(losses===9 && wins<9){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; }
     if(wins===8 && losses===8){ scoreMsg("Tæt på, godt kæmpet 🤝"); return; }
   } else if(currentMode==="Druk"){
-    // Tilføjet Druk afslutning
-    if(wins+losses >= 10){  // Du kan justere antallet af runder før popup
-      scoreMsg("🎉 Druk spillet er slut!");
+    if(wins===13 && losses<12){ scoreMsg("Tillykke du vandt 🎉"); return; }
+    if(losses===13 && wins<12){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; }
+    if(wins===12 && losses===12){ showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true; }
       return;
     }
   }
