@@ -111,8 +111,6 @@ function showSetup(){
     const btn=document.createElement("button"); btn.className="primary"; btn.innerText=mode; btn.onclick=()=>selectMode(mode);
     setup.appendChild(btn);
   });
-  const exitBtn=document.createElement("button"); exitBtn.className="danger"; exitBtn.innerText="Afslut"; exitBtn.onclick=resetGame;
-  setup.appendChild(exitBtn);
 }
 
 function selectMode(mode){
