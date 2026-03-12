@@ -31,8 +31,6 @@ button:hover{transform: scale(1.05);}
 #overlay{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background: rgba(0,0,0,0.85);padding:20px;border-radius:10px;font-size:18px;font-weight:bold;z-index:1000;color:white;text-align:center;}
 #overlay button{margin-top:15px;padding:10px 20px;font-size:16px;}
 @media(max-width:420px){.challengeTitle{font-size:20px;}.challengeText{font-size:16px;}button{font-size:14px;padding:12px;}}
-
-/* ØKONOMI-BOKS CSS */
 .ecoBox {display:flex;margin:10px 0;width:100%;height:50px;border-radius:8px;overflow:hidden;font-weight:bold;font-size:16px;cursor:default;}
 .ecoBox div {flex:1;display:flex;justify-content:center;align-items:center;color:white;}
 .ecoWin {background-color:#28a745;}
@@ -76,29 +74,27 @@ const weaponsT=["AK-47","Galil","Nova","SSG 08","AWP","Desert Eagle","P90"];
 const generalChallenges=[{title:"Tag en slapper",text:"Du må kun liste denne runde."},{title:"Granatfest",text:"Brug alle dine granater inden 30 sek."},{title:"Camping tur",text:"Camp første hjørne du møder."},{title:"Ingen reload",text:"Reload kun når magasinet er tomt."},{title:"Blind tillid",text:"Følg en teammate hele runden."},{title:"Rush time",text:"Hold W hele vejen til sitet."},{title:"Headshot jæger",text:"Du må kun gå efter headshots."},{title:"Våbenbyt",text:"Samle første våben du ser på jorden."}];
 const ctChallenges=[{title:"Bombens beskytter",text:"Du må ikke forlade sitet du starter på."},{title:"Hero defuse",text:"Hvis bomben plantes SKAL du forsøge defuse."}];
 const tChallenges=[{title:"Entry fragger",text:"Du skal være første spiller ind på sitet."},{title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}];
-const competitiveMapChallenges={/* ... holdes uændret */};
-const wingmanMapChallenges={/* ... holdes uændret */};
+const competitiveMapChallenges={};
+const wingmanMapChallenges={};
+const drinkChallenges=[{title:"Entry død",text:"Dør du først → drik"},{title:"Flash fail",text:"Flasher du en teammate → drik"},{title:"Bomb drop",text:"Dropper du bomben → drik"},{title:"Reload fail",text:"Reload mid fight → drik"},{title:"Spray and pray",text:"Miss hele magasinet → drik"},{title:"Rush B",text:"Sig rush B i voice"},{title:"Camping trip",text:"Camp første hjørne"},{title:"Knife attempt",text:"Prøv knife kill"},{title:"Utility master",text:"Brug alle grenades"},{title:"Skylden",text:"{color} drikker"}];
+const colorEvents=["{color} drikker","{color} drikker 2 tårer","{color} tager straffen","Alle drikker"];
 
-// ===== ØKONOMI =====
 let ecoLossStreak=0;
-
-// ===== GAME OVER FLAG =====
 let gameOver=false;
 
-// ===== Update Economy standard =====
-function updateEconomy() {
-  if(currentMode==="Druk") return;
-  const winCash = 3250;
-  const baseLoss = 1400;
-  const increment = 500;
-  const maxLoss = 3400;
+// ===== Farver =====
+const csColors=["Blå","Grøn","Gul","Orange","Lilla"];
+function randomColor(){ return csColors[Math.floor(Math.random()*csColors.length)]; }
 
-  let lossCash = baseLoss + (ecoLossStreak - 1) * increment;
-  if(lossCash > maxLoss) lossCash = maxLoss;
-  if(lossCash < baseLoss) lossCash = baseLoss;
-
-  document.querySelector(".ecoWin").innerText = winCash + "$";
-  document.querySelector(".ecoLoss").innerText = lossCash + "$";
+// ===== ØKONOMI UPDATE =====
+function updateEconomy(){
+  if(currentMode==="Druk"){ document.querySelector(".ecoBox").style.display="none"; return; }
+  let winCash=3250, baseLoss=1400, increment=500, maxLoss=3400;
+  let lossCash=baseLoss+(ecoLossStreak-1)*increment;
+  if(lossCash>maxLoss) lossCash=maxLoss;
+  if(lossCash<baseLoss) lossCash=baseLoss;
+  document.querySelector(".ecoWin").innerText=winCash+"$";
+  document.querySelector(".ecoLoss").innerText=lossCash+"$";
 }
 
 // ===== Setup UI =====
@@ -114,16 +110,30 @@ function showSetup(){
 
 // ===== Game Flow =====
 function selectMode(mode){
-  currentMode=mode; document.getElementById("modeDisplay").innerText=mode;
+  currentMode=mode; 
+  document.getElementById("modeDisplay").innerText=mode;
   const setupDiv=document.getElementById("setup"); setupDiv.innerHTML="";
+
   if(mode==="Druk"){
     setupDiv.innerHTML="<p>Druk mode 🍺</p>";
-    const startBtn=document.createElement("button"); startBtn.className="primary"; startBtn.innerText="Start"; startBtn.onclick=()=>startGame("CT");
+    
+    // Startknap til Druk
+    const startBtn=document.createElement("button"); 
+    startBtn.className="primary"; 
+    startBtn.innerText="Start"; 
+    startBtn.onclick=()=>startGame("CT"); 
     setupDiv.appendChild(startBtn);
-    const backBtn=document.createElement("button"); backBtn.className="danger"; backBtn.innerText="Tilbage"; backBtn.onclick=showSetup;
+    
+    // Tilbage-knap
+    const backBtn=document.createElement("button"); 
+    backBtn.className="danger"; 
+    backBtn.innerText="Tilbage"; 
+    backBtn.onclick=showSetup;
     setupDiv.appendChild(backBtn);
+
     return;
   }
+
   setupDiv.innerHTML=`<p>Vælg Map (${mode})</p>`;
   mapsByMode[mode].forEach(map=>{
     const btn=document.createElement("button"); btn.className="primary"; btn.style.marginTop="10px"; btn.innerText=map; btn.onclick=()=>selectMap(map);
@@ -134,8 +144,10 @@ function selectMode(mode){
 }
 
 function selectMap(map){
-  currentMap=map; document.getElementById("mapDisplay").innerText=map;
-  const setupDiv=document.getElementById("setup"); setupDiv.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
+  currentMap=map; 
+  document.getElementById("mapDisplay").innerText=map;
+  const setupDiv=document.getElementById("setup"); 
+  setupDiv.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
   [["Start som Counter-Terrorist","CT"],["Start som Terrorist","T"]].forEach(([label,s])=>{
     const btn=document.createElement("button"); btn.className="primary"; btn.innerText=label; btn.onclick=()=>startGame(s); setupDiv.appendChild(btn);
   });
@@ -143,9 +155,20 @@ function selectMap(map){
   setupDiv.appendChild(backBtn);
 }
 
-// ===== Game functions =====
-function randomWeapon(){ return (side==="CT" ? weaponsCT : weaponsT)[Math.floor(Math.random()*(side==="CT" ? weaponsCT.length : weaponsT.length))]; }
+// ===== Challenges =====
+function randomColorEvent(){ return csColors[Math.floor(Math.random()*csColors.length)]; }
+function randomWeapon(){ return (side==="CT"?weaponsCT:weaponsT)[Math.floor(Math.random()*(side==="CT"?weaponsCT.length:weaponsT.length))]; }
+
 function randomChallenge(){
+  if(currentMode==="Druk"){
+    if(Math.random()<0.2){
+      let txt=colorEvents[Math.floor(Math.random()*colorEvents.length)];
+      return {title:"🎨 FARVE EVENT", text:txt.replace("{color}",randomColorEvent())};
+    }
+    let c=drinkChallenges[Math.floor(Math.random()*drinkChallenges.length)];
+    return {title:c.title,text:c.text.replace("{color}",randomColorEvent())};
+  }
+
   let pool=[...generalChallenges];
   if(side==="CT") pool.push(...ctChallenges);
   if(side==="T") pool.push(...tChallenges);
@@ -158,11 +181,15 @@ function randomChallenge(){
   return c;
 }
 
+// ===== Start & UI =====
 function startGame(s){ 
-  side=s; document.getElementById("setup").style.display="none"; document.getElementById("game").style.display="block"; 
-  updateUI(); 
+  side=s; 
+  document.getElementById("setup").style.display="none"; 
+  document.getElementById("game").style.display="block"; 
   gameOver=false; 
-  document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=false);
+  document.querySelectorAll(".win,.loss").forEach(btn=>btn.disabled=false);
+  updateUI(); 
+  updateEconomy();
 }
 
 function updateUI(){ 
@@ -175,7 +202,7 @@ function updateUI(){
   challengeDiv.querySelector(".challengeText").textContent=c.text; 
 }
 
-// ===== Animations og overlay =====
+// ===== Animations & Overlay =====
 function animateContainer(result){ const container=document.querySelector('.container'); container.classList.remove('blink-green','blink-red'); void container.offsetWidth; container.classList.add(result==='win'?'blink-green':'blink-red'); }
 function animateScore(id){ const el=document.getElementById(id); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
 
@@ -188,9 +215,8 @@ function showOverlay(message, showButton=false){
     btn.innerText="Afslut";
     btn.onclick=resetGame;
     overlay.appendChild(btn);
-
-    gameOver = true; 
-    document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=true);
+    gameOver=true;
+    document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=true);
   }
   overlay.style.display='block';
   overlay.style.opacity=1;
@@ -198,20 +224,10 @@ function showOverlay(message, showButton=false){
 }
 
 // ===== Win/Loss Logic =====
-function win(){
-  if(gameOver) return;
-  wins++; ecoLossStreak=0;
-  document.getElementById("wins").innerText=wins;
-  animateContainer('win'); animateScore('wins'); checkWin(); nextRound(); updateEconomy();
-}
+function win(){ if(gameOver) return; wins++; if(currentMode!=="Druk") ecoLossStreak=0; document.getElementById("wins").innerText=wins; animateContainer('win'); animateScore('wins'); checkWin(); nextRound(); updateEconomy(); }
+function lose(){ if(gameOver) return; losses++; if(currentMode!=="Druk") ecoLossStreak++; document.getElementById("losses").innerText=losses; animateContainer('loss'); animateScore('losses'); checkWin(); nextRound(); updateEconomy(); }
 
-function lose(){
-  if(gameOver) return;
-  losses++; ecoLossStreak++;
-  document.getElementById("losses").innerText=losses;
-  animateContainer('loss'); animateScore('loss'); checkWin(); nextRound(); updateEconomy();
-}
-
+// ===== Check Win =====
 function checkWin(){
   const scoreMsg=(msg)=>showOverlay(msg,true);
   if(currentMode==="Competitive"){
@@ -231,6 +247,7 @@ function checkWin(){
   }
 }
 
+// ===== Next Round =====
 function nextRound(){
   round++;
   let sideChanged=false;
@@ -239,12 +256,23 @@ function nextRound(){
   } else if(currentMode==="Wingman"){
     if(round===9){ side=side==="CT"?"T":"CT"; showOverlay("Siderne skifter i Wingman!"); sideChanged=true; }
   }
-  if(sideChanged){ ecoLossStreak=0; }
+  if(sideChanged && currentMode!=="Druk"){ ecoLossStreak=0; }
   updateUI();
   updateEconomy();
 }
 
 function endGame(){ showOverlay("Kampen blev afsluttet.",true); }
+function resetGame(){
+  round=1; side=""; wins=0; losses=0; overtime=false; currentMode=""; currentMap=""; ecoLossStreak=0; gameOver=false;
+  document.getElementById("wins").innerText="0";
+  document.getElementById("losses").innerText="0";
+  document.getElementById("setup").style.display="block";
+  document.getElementById("game").style.display="none";
+  document.getElementById("overlay").style.display="none";
+  document.querySelectorAll(".win,.loss").forEach(btn=>btn.disabled=false);
+  updateEconomy();
+  showSetup();
+}
 
 // ===== Init =====
 showSetup();
