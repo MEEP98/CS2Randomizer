@@ -51,11 +51,6 @@ button:hover{transform: scale(1.05);}
 <button class="win" onclick="win()">Vandt runde</button>
 <button class="loss" onclick="lose()">Tabte runde</button>
 
-<div class="ecoBox">
-  <div class="ecoWin">3250$</div>
-  <div class="ecoLoss">1400$</div>
-</div>
-
 <div class="scoreboard">
   <div class="scoreBox winBox"><div class="scoreLabel">Wins</div><div id="wins" class="scoreNumber">0</div></div>
   <div class="scoreBox lossBox"><div class="scoreLabel">Losses</div><div id="losses" class="scoreNumber">0</div></div>
@@ -69,7 +64,6 @@ button:hover{transform: scale(1.05);}
 <script>
 // ===== GAME STATE =====
 let round=1, side="", overtime=false, wins=0, losses=0, currentMode="", currentMap="";
-let ecoLossStreak=0;
 let gameOver=false;
 
 // CS Farver
