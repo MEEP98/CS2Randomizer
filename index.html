@@ -110,8 +110,6 @@ function showSetup(){
     const btn=document.createElement("button"); btn.className="primary"; btn.innerText=mode; btn.onclick=()=>selectMode(mode);
     setup.appendChild(btn);
   });
-  const exitBtn=document.createElement("button"); exitBtn.className="danger"; exitBtn.innerText="Afslut"; exitBtn.onclick=resetGame;
-  setup.appendChild(exitBtn);
 }
 
 function selectMode(mode){
@@ -121,8 +119,6 @@ function selectMode(mode){
     setup.innerHTML="<p>Druk mode 🍺</p>";
     const startBtn=document.createElement("button"); startBtn.className="primary"; startBtn.innerText="Start"; startBtn.onclick=()=>startGame("CT");
     setup.appendChild(startBtn);
-    const exitBtn=document.createElement("button"); exitBtn.className="danger"; exitBtn.innerText="Afslut"; exitBtn.onclick=resetGame;
-    setup.appendChild(exitBtn);
     return;
   }
   setup.innerHTML=`<p>Vælg Map (${mode})</p>`;
@@ -130,18 +126,6 @@ function selectMode(mode){
     const btn=document.createElement("button"); btn.className="primary"; btn.innerText=map; btn.onclick=()=>selectMap(map);
     setup.appendChild(btn);
   });
-  const exitBtn=document.createElement("button"); exitBtn.className="danger"; exitBtn.innerText="Afslut"; exitBtn.onclick=resetGame;
-  setup.appendChild(exitBtn);
-}
-
-function selectMap(map){
-  currentMap=map; document.getElementById("mapDisplay").innerText=map;
-  const setup=document.getElementById("setup"); setup.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
-  [["Start som Counter-Terrorist","CT"],["Start som Terrorist","T"]].forEach(([label,s])=>{
-    const btn=document.createElement("button"); btn.className="primary"; btn.innerText=label; btn.onclick=()=>startGame(s); setup.appendChild(btn);
-  });
-  const exitBtn=document.createElement("button"); exitBtn.className="danger"; exitBtn.innerText="Afslut"; exitBtn.onclick=resetGame;
-  setup.appendChild(exitBtn);
 }
 
 // ===== GAME FLOW =====
@@ -189,6 +173,7 @@ function showOverlay(message,showButton=false){
 
 // ===== ROUND LOGIC =====
 function nextRound(){ 
+  if(currentMode==="Druk"){ updateUI(); return; } 
   round++; 
   let sideChanged=false; 
   if(currentMode==="Competitive"){ 
@@ -226,7 +211,6 @@ function lose(){
 
 function checkWin(){
   const scoreMsg=(msg)=>{ showOverlay(msg,true); return true; };
-  
   if(currentMode==="Competitive"){
     if(!overtime){
       if(wins===13 && losses<12) return scoreMsg("Tillykke du vandt 🎉");
