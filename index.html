@@ -536,6 +536,8 @@ return;
 
 else if(currentMode==="Druk"){
 
+if(!overtime){
+
 if(wins===13 && losses<12){
 scoreMsg("Tillykke du vandt 🎉");
 return;
@@ -549,6 +551,22 @@ return;
 if(wins===12 && losses===12){
 showOverlay("⚔️ 12-12! Overtime starter!");
 overtime=true;
+}
+}
+else{
+
+if(wins===16 && losses<15){
+scoreMsg("Tillykke du vandt 🎉");
+return;
+}
+
+if(losses===16 && wins<15){
+scoreMsg("Man kan ikke stoppe på et loss 💀");
+return;
+}
+
+if(wins===15 && losses===15){
+scoreMsg("Tæt på, godt kæmpet 🤝");
 return;
 }
 }
