@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="da">
 <head>
@@ -175,25 +174,89 @@ function updateUI(){
 // ===== ANIMATION & POPUP =====
 function animateContainer(result){ const container=document.querySelector('.container'); container.classList.remove('blink-green','blink-red'); void container.offsetWidth; container.classList.add(result==='win'?'blink-green':'blink-red'); }
 function animateScore(id){ const el=document.getElementById(id); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
-function showOverlay(message,showButton=false){ const overlay=document.getElementById('overlay'); overlay.innerHTML=`<div>${message}</div>`; if(showButton){ const btn=document.createElement("button"); btn.className="primary"; btn.innerText="Afslut"; btn.onclick=resetGame; overlay.appendChild(btn); gameOver=true; document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=true); } overlay.style.display='block'; overlay.style.opacity=1; if(!showButton){ setTimeout(()=>{ overlay.style.display='none'; },2000); }}
+function showOverlay(message,showButton=false){ 
+  const overlay=document.getElementById('overlay'); 
+  overlay.innerHTML=`<div>${message}</div>`; 
+  if(showButton){ 
+    const btn=document.createElement("button"); btn.className="primary"; btn.innerText="Afslut"; btn.onclick=resetGame; 
+    overlay.appendChild(btn); 
+    gameOver=true; 
+    document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=true); 
+  } 
+  overlay.style.display='block'; overlay.style.opacity=1; 
+  if(!showButton){ setTimeout(()=>{ overlay.style.display='none'; },2000); }
+}
 
 // ===== ROUND LOGIC =====
-function nextRound(){ round++; let sideChanged=false; if(currentMode==="Competitive"){ if(round===13 && !overtime || (overtime && round===28)){ side=side==="CT"?"T":"CT"; showOverlay(overtime?"Overtime sideskift!":"Siderne er skiftet!"); sideChanged=true; }} else if(currentMode==="Wingman"){ if(round===9){ side=side==="CT"?"T":"CT"; showOverlay("Siderne skifter i Wingman!"); sideChanged=true; }} if(sideChanged) ecoLossStreak=0; updateUI(); updateEconomy(); }
+function nextRound(){ 
+  round++; 
+  let sideChanged=false; 
+  if(currentMode==="Competitive"){ 
+    if(round===13 && !overtime || (overtime && round===28)){ 
+      side=side==="CT"?"T":"CT"; 
+      showOverlay(overtime?"Overtime sideskift!":"Siderne er skiftet!"); 
+      sideChanged=true; 
+    } 
+  } else if(currentMode==="Wingman"){ 
+    if(round===9){ 
+      side=side==="CT"?"T":"CT"; 
+      showOverlay("Siderne skifter i Wingman!"); 
+      sideChanged=true; 
+    } 
+  } 
+  if(sideChanged) ecoLossStreak=0; 
+  updateUI(); updateEconomy(); 
+}
 
-function win(){ if(gameOver) return; wins++; document.getElementById("wins").innerText=wins; animateScore('wins'); animateContainer('win'); if(currentMode!=="Druk") ecoLossStreak=0; updateEconomy(); checkWin(); nextRound(); }
-function lose(){ if(gameOver) return; losses++; document.getElementById("losses").innerText=losses; animateScore('losses'); animateContainer('loss'); if(currentMode!=="Druk") ecoLossStreak++; updateEconomy(); checkWin(); nextRound(); }
+function win(){
+  if(gameOver) return;
+  wins++; document.getElementById("wins").innerText=wins; animateScore('wins'); animateContainer('win'); 
+  if(currentMode!=="Druk") ecoLossStreak=0; updateEconomy(); 
+  if(checkWin()) return; 
+  nextRound();
+}
+
+function lose(){
+  if(gameOver) return;
+  losses++; document.getElementById("losses").innerText=losses; animateScore('losses'); animateContainer('loss'); 
+  if(currentMode!=="Druk") ecoLossStreak++; updateEconomy(); 
+  if(checkWin()) return; 
+  nextRound();
+}
 
 function checkWin(){
-  const scoreMsg=(msg)=>showOverlay(msg,true);
-  if(currentMode==="Competitive"){ if(!overtime){ if(wins===13 && losses<12){ scoreMsg("Tillykke du vandt 🎉"); return; } if(losses===13 && wins<12){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; } if(wins===12 && losses===12){ showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true; } } else { if(wins===16 && losses<15){ scoreMsg("Tillykke du vandt 🎉"); return; } if(losses===16 && wins<15){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; } if(wins===15 && losses===15){ scoreMsg("Tæt på, godt kæmpet 🤝"); return; } } } else if(currentMode==="Wingman"){ if(wins===9 && losses<9){ scoreMsg("Tillykke du vandt 🎉"); return; } if(losses===9 && wins<9){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; } if(wins===8 && losses===8){ scoreMsg("Tæt på, godt kæmpet 🤝"); return; } }
+  const scoreMsg=(msg)=>{ showOverlay(msg,true); return true; };
+  
+  if(currentMode==="Competitive"){
+    if(!overtime){
+      if(wins===13 && losses<12) return scoreMsg("Tillykke du vandt 🎉");
+      if(losses===13 && wins<12) return scoreMsg("Man kan ikke stoppe på et loss 💀");
+      if(wins===12 && losses===12){ showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true; return false; }
+    } else {
+      if(wins===16 && losses<15) return scoreMsg("Tillykke du vandt 🎉");
+      if(losses===16 && wins<15) return scoreMsg("Man kan ikke stoppe på et loss 💀");
+      if(wins===15 && losses===15) return scoreMsg("Tæt på, godt kæmpet 🤝");
+    }
+  } else if(currentMode==="Wingman"){
+    if(wins===9 && losses<9) return scoreMsg("Tillykke du vandt 🎉");
+    if(losses===9 && wins<9) return scoreMsg("Man kan ikke stoppe på et loss 💀");
+    if(wins===8 && losses===8) return scoreMsg("Tæt på, godt kæmpet 🤝");
+  }
+  return false;
 }
 
 function endGame(){ showOverlay("Kampen blev afsluttet.",true); }
 
-function resetGame(){ round=1; side=""; wins=0; losses=0; currentMode=""; currentMap=""; overtime=false; ecoLossStreak=0; gameOver=false; document.getElementById("wins").innerText="0"; document.getElementById("losses").innerText="0"; document.getElementById("setup").style.display="block"; document.getElementById("game").style.display="none"; document.getElementById("overlay").style.display="none"; document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=false); updateEconomy(); showSetup(); }
+function resetGame(){ 
+  round=1; side=""; wins=0; losses=0; currentMode=""; currentMap=""; overtime=false; ecoLossStreak=0; gameOver=false; 
+  document.getElementById("wins").innerText="0"; document.getElementById("losses").innerText="0"; 
+  document.getElementById("setup").style.display="block"; document.getElementById("game").style.display="none"; 
+  document.getElementById("overlay").style.display="none"; 
+  document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=false); 
+  updateEconomy(); showSetup(); 
+}
 
 showSetup(); updateEconomy();
-
 </script>
 </body>
 </html>
