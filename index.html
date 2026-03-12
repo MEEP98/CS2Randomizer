@@ -87,6 +87,7 @@ let gameOver=false;
 
 // ===== Update Economy standard =====
 function updateEconomy() {
+  if(currentMode==="Druk") return;
   const winCash = 3250;
   const baseLoss = 1400;
   const increment = 500;
@@ -109,7 +110,6 @@ function showSetup(){
     btn.className="primary"; btn.innerText=mode; btn.onclick=()=>selectMode(mode);
     setupDiv.appendChild(btn);
   });
-  // **FJERNET** afslut-knappen fra startmenuen
 }
 
 // ===== Game Flow =====
@@ -117,9 +117,12 @@ function selectMode(mode){
   currentMode=mode; document.getElementById("modeDisplay").innerText=mode;
   const setupDiv=document.getElementById("setup"); setupDiv.innerHTML="";
   if(mode==="Druk"){
-    setupDiv.innerHTML="<p>Kommer snart</p>";
-    const back=document.createElement("button"); back.className="danger"; back.innerText="Tilbage"; back.onclick=showSetup;
-    setupDiv.appendChild(back); return;
+    setupDiv.innerHTML="<p>Druk mode 🍺</p>";
+    const startBtn=document.createElement("button"); startBtn.className="primary"; startBtn.innerText="Start"; startBtn.onclick=()=>startGame("CT");
+    setupDiv.appendChild(startBtn);
+    const backBtn=document.createElement("button"); backBtn.className="danger"; backBtn.innerText="Tilbage"; backBtn.onclick=showSetup;
+    setupDiv.appendChild(backBtn);
+    return;
   }
   setupDiv.innerHTML=`<p>Vælg Map (${mode})</p>`;
   mapsByMode[mode].forEach(map=>{
@@ -140,6 +143,7 @@ function selectMap(map){
   setupDiv.appendChild(backBtn);
 }
 
+// ===== Game functions =====
 function randomWeapon(){ return (side==="CT" ? weaponsCT : weaponsT)[Math.floor(Math.random()*(side==="CT" ? weaponsCT.length : weaponsT.length))]; }
 function randomChallenge(){
   let pool=[...generalChallenges];
@@ -193,22 +197,6 @@ function showOverlay(message, showButton=false){
   if(!showButton){ setTimeout(()=>{ overlay.style.display='none'; },2000); }
 }
 
-function resetGame(){
-  round=1; side=""; wins=0; losses=0; overtime=false; currentMode=""; currentMap="";
-  document.getElementById("wins").innerText="0"; 
-  document.getElementById("losses").innerText="0";
-  document.getElementById("setup").style.display="block"; 
-  document.getElementById("game").style.display="none";
-  document.getElementById("overlay").style.display="none";
-
-  gameOver = false;
-  document.querySelectorAll(".win, .loss").forEach(btn=>btn.disabled=false);
-
-  ecoLossStreak=0; 
-  updateEconomy();
-  showSetup();
-}
-
 // ===== Win/Loss Logic =====
 function win(){
   if(gameOver) return;
@@ -221,7 +209,7 @@ function lose(){
   if(gameOver) return;
   losses++; ecoLossStreak++;
   document.getElementById("losses").innerText=losses;
-  animateContainer('loss'); animateScore('losses'); checkWin(); nextRound(); updateEconomy();
+  animateContainer('loss'); animateScore('loss'); checkWin(); nextRound(); updateEconomy();
 }
 
 function checkWin(){
