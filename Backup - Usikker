@@ -123,7 +123,7 @@ function randomColor(){ return csColors[Math.floor(Math.random()*csColors.length
 const mapsByMode={
 Competitive:["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
 Wingman:["Overpass","Vertigo","Nuke","Inferno","Andet"],
-Druk:[]
+Druk:["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"] // nu som Competitive
 };
 
 // CHALLENGES
@@ -171,408 +171,263 @@ const colorEvents=[
 
 // ===== ECO ROUND =====
 function updateEconomy(){
+    if(currentMode==="Druk") return;
 
-if(currentMode==="Druk") return;
+    let baseLoss=1400;
+    let increment=500;
+    let maxLoss=3400;
 
-let baseLoss=1400;
-let increment=500;
-let maxLoss=3400;
+    let lossCash=baseLoss + ecoLossStreak*increment;
 
-let lossCash=baseLoss + ecoLossStreak*increment;
+    if(lossCash>maxLoss) lossCash=maxLoss;
+    if(lossCash<baseLoss) lossCash=baseLoss;
 
-if(lossCash>maxLoss) lossCash=maxLoss;
-if(lossCash<baseLoss) lossCash=baseLoss;
-
-document.querySelector(".ecoWin").innerText="3250$";
-document.querySelector(".ecoLoss").innerText=lossCash+"$";
+    document.querySelector(".ecoWin").innerText="3250$";
+    document.querySelector(".ecoLoss").innerText=lossCash+"$";
 }
 
 // ===== SETUP UI =====
 function showSetup(){
+    const setup=document.getElementById("setup");
+    setup.innerHTML="<p>Vælg Game Mode</p>";
 
-const setup=document.getElementById("setup");
-
-setup.innerHTML="<p>Vælg Game Mode</p>";
-
-["Competitive","Wingman","Druk"].forEach(mode=>{
-const btn=document.createElement("button");
-btn.className="primary";
-btn.innerText=mode;
-btn.onclick=()=>selectMode(mode);
-setup.appendChild(btn);
-});
+    ["Competitive","Wingman","Druk"].forEach(mode=>{
+        const btn=document.createElement("button");
+        btn.className="primary";
+        btn.innerText=mode;
+        btn.onclick=()=>selectMode(mode);
+        setup.appendChild(btn);
+    });
 }
 
 function selectMode(mode){
+    currentMode=mode;
+    document.getElementById("modeDisplay").innerText=mode;
 
-currentMode=mode;
-document.getElementById("modeDisplay").innerText=mode;
+    const setup=document.getElementById("setup");
+    setup.innerHTML="";
 
-const setup=document.getElementById("setup");
-setup.innerHTML="";
+    if(mode==="Druk"){
+        setup.innerHTML="<p>Druk mode 🍺</p>";
+        const startBtn=document.createElement("button");
+        startBtn.className="primary";
+        startBtn.innerText="Start";
+        startBtn.onclick=()=>startGame("CT");
+        setup.appendChild(startBtn);
 
-if(mode==="Druk"){
+        const exitBtn=document.createElement("button");
+        exitBtn.className="danger";
+        exitBtn.innerText="Afslut";
+        exitBtn.onclick=resetGame;
+        setup.appendChild(exitBtn);
+        return;
+    }
 
-setup.innerHTML="<p>Druk mode 🍺</p>";
+    setup.innerHTML=`<p>Vælg Map (${mode})</p>`;
+    mapsByMode[mode].forEach(map=>{
+        const btn=document.createElement("button");
+        btn.className="primary";
+        btn.innerText=map;
+        btn.onclick=()=>selectMap(map);
+        setup.appendChild(btn);
+    });
 
-const startBtn=document.createElement("button");
-startBtn.className="primary";
-startBtn.innerText="Start";
-startBtn.onclick=()=>startGame("CT");
-setup.appendChild(startBtn);
-
-const exitBtn=document.createElement("button");
-exitBtn.className="danger";
-exitBtn.innerText="Afslut";
-exitBtn.onclick=resetGame;
-setup.appendChild(exitBtn);
-
-return;
-}
-
-setup.innerHTML=`<p>Vælg Map (${mode})</p>`;
-
-mapsByMode[mode].forEach(map=>{
-const btn=document.createElement("button");
-btn.className="primary";
-btn.innerText=map;
-btn.onclick=()=>selectMap(map);
-setup.appendChild(btn);
-});
-
-const exitBtn=document.createElement("button");
-exitBtn.className="danger";
-exitBtn.innerText="Afslut";
-exitBtn.onclick=resetGame;
-setup.appendChild(exitBtn);
+    const exitBtn=document.createElement("button");
+    exitBtn.className="danger";
+    exitBtn.innerText="Afslut";
+    exitBtn.onclick=resetGame;
+    setup.appendChild(exitBtn);
 }
 
 function selectMap(map){
+    currentMap=map;
+    document.getElementById("mapDisplay").innerText=map;
 
-currentMap=map;
-document.getElementById("mapDisplay").innerText=map;
+    const setup=document.getElementById("setup");
+    setup.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
 
-const setup=document.getElementById("setup");
+    [["Start som Counter-Terrorist","CT"],["Start som Terrorist","T"]].forEach(([label,s])=>{
+        const btn=document.createElement("button");
+        btn.className="primary";
+        btn.innerText=label;
+        btn.onclick=()=>startGame(s);
+        setup.appendChild(btn);
+    });
 
-setup.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
-
-[["Start som Counter-Terrorist","CT"],["Start som Terrorist","T"]].forEach(([label,s])=>{
-const btn=document.createElement("button");
-btn.className="primary";
-btn.innerText=label;
-btn.onclick=()=>startGame(s);
-setup.appendChild(btn);
-});
-
-const exitBtn=document.createElement("button");
-exitBtn.className="danger";
-exitBtn.innerText="Afslut";
-exitBtn.onclick=resetGame;
-setup.appendChild(exitBtn);
+    const exitBtn=document.createElement("button");
+    exitBtn.className="danger";
+    exitBtn.innerText="Afslut";
+    exitBtn.onclick=resetGame;
+    setup.appendChild(exitBtn);
 }
 
 // ===== GAME FLOW =====
 function startGame(s){
-
-side=s;
-
-document.getElementById("setup").style.display="none";
-document.getElementById("game").style.display="block";
-
-document.querySelector(".ecoBox").style.display=(currentMode==="Druk")?"none":"flex";
-
-updateUI();
-updateEconomy();
+    side=s;
+    document.getElementById("setup").style.display="none";
+    document.getElementById("game").style.display="block";
+    document.querySelector(".ecoBox").style.display=(currentMode==="Druk")?"none":"flex";
+    updateUI();
+    updateEconomy();
 }
 
 function randomChallenge(){
+    if(currentMode==="Druk"){
+        if(Math.random()<0.2){
+            let txt=colorEvents[Math.floor(Math.random()*colorEvents.length)];
+            return {title:"🎨 FARVE EVENT", text:txt.replace("{color}",randomColor())};
+        }
+        let c=drinkChallenges[Math.floor(Math.random()*drinkChallenges.length)];
+        return {title:c.title, text:c.text.replace("{color}",randomColor())};
+    }
 
-if(currentMode==="Druk"){
+    let pool=[...generalChallenges];
+    if(side==="CT") pool.push(...ctChallenges);
+    if(side==="T") pool.push(...tChallenges);
 
-if(Math.random()<0.2){
-
-let txt=colorEvents[Math.floor(Math.random()*colorEvents.length)];
-
-return{
-title:"🎨 FARVE EVENT",
-text:txt.replace("{color}",randomColor())
-};
-}
-
-let c=drinkChallenges[Math.floor(Math.random()*drinkChallenges.length)];
-
-return{
-title:c.title,
-text:c.text.replace("{color}",randomColor())
-};
-}
-
-let pool=[...generalChallenges];
-
-if(side==="CT") pool.push(...ctChallenges);
-if(side==="T") pool.push(...tChallenges);
-
-let c=pool[Math.floor(Math.random()*pool.length)];
-
-return{
-title:c.title,
-text:c.text.replace("{color}",randomColor())
-};
+    let c=pool[Math.floor(Math.random()*pool.length)];
+    return {title:c.title, text:c.text.replace("{color}",randomColor())};
 }
 
 function updateUI(){
+    document.getElementById("round").innerText=round;
+    document.getElementById("side").innerText=(side==="CT")?"Counter-Terrorist":"Terrorist";
 
-document.getElementById("round").innerText=round;
-document.getElementById("side").innerText=(side==="CT")?"Counter-Terrorist":"Terrorist";
-
-let c=randomChallenge();
-
-document.getElementById("challenge").innerHTML=
-`<div class='challengeTitle'>${c.title}</div>
-<div class='challengeText'>${c.text}</div>`;
+    let c=randomChallenge();
+    document.getElementById("challenge").innerHTML=
+        `<div class='challengeTitle'>${c.title}</div>
+         <div class='challengeText'>${c.text}</div>`;
 }
 
 // ===== ANIMATION =====
 function animateContainer(result){
-
-const container=document.querySelector('.container');
-
-container.classList.remove('blink-green','blink-red');
-
-void container.offsetWidth;
-
-container.classList.add(result==='win'?'blink-green':'blink-red');
+    const container=document.querySelector('.container');
+    container.classList.remove('blink-green','blink-red');
+    void container.offsetWidth;
+    container.classList.add(result==='win'?'blink-green':'blink-red');
 }
 
 function animateScore(id){
-
-const el=document.getElementById(id);
-
-el.classList.remove('pop');
-
-void el.offsetWidth;
-
-el.classList.add('pop');
+    const el=document.getElementById(id);
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
 }
 
 function showOverlay(message,showButton=false){
-
-const overlay=document.getElementById('overlay');
-
-overlay.innerHTML=`<div>${message}</div>`;
-
-if(showButton){
-
-const btn=document.createElement("button");
-
-btn.className="primary";
-
-btn.innerText="Afslut";
-
-btn.onclick=resetGame;
-
-overlay.appendChild(btn);
-
-gameOver=true;
-
-document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=true);
-}
-
-overlay.style.display='block';
-
-overlay.style.opacity=1;
-
-if(!showButton){
-
-setTimeout(()=>{
-overlay.style.display='none';
-},2000);
-}
+    const overlay=document.getElementById('overlay');
+    overlay.innerHTML=`<div>${message}</div>`;
+    if(showButton){
+        const btn=document.createElement("button");
+        btn.className="primary";
+        btn.innerText="Afslut";
+        btn.onclick=resetGame;
+        overlay.appendChild(btn);
+        gameOver=true;
+        document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=true);
+    }
+    overlay.style.display='block';
+    overlay.style.opacity=1;
+    if(!showButton){
+        setTimeout(()=>{overlay.style.display='none';},2000);
+    }
 }
 
 // ===== ROUND LOGIC =====
 function nextRound(){
+    round++;
+    let sideChanged=false;
 
-round++;
+    // ✅ Fix: Druk får popup ligesom Competitive
+    if(currentMode==="Competitive" || currentMode==="Druk"){
+        if((!overtime && round===13) || (overtime && round===28)){
+            side = side==="CT"?"T":"CT";
+            showOverlay(overtime?"Overtime sideskift!":"Siderne er skiftet!");
+            sideChanged=true;
+        }
+    }
+    else if(currentMode==="Wingman"){
+        if(round===9){
+            side = side==="CT"?"T":"CT";
+            showOverlay("Siderne skifter i Wingman!");
+            sideChanged=true;
+        }
+    }
 
-let sideChanged=false;
-
-if(currentMode==="Competitive"){
-
-if(round===13 && !overtime || (overtime && round===28)){
-
-side=side==="CT"?"T":"CT";
-
-showOverlay(overtime?"Overtime sideskift!":"Siderne er skiftet!");
-
-sideChanged=true;
-}
-}
-else if(currentMode==="Wingman"){
-
-if(round===9){
-
-side=side==="CT"?"T":"CT";
-
-showOverlay("Siderne skifter i Wingman!");
-
-sideChanged=true;
-}
-}
-
-if(sideChanged) ecoLossStreak=0;
-
-updateUI();
-updateEconomy();
+    if(sideChanged) ecoLossStreak=0;
+    updateUI();
+    updateEconomy();
 }
 
 function win(){
-
-if(gameOver) return;
-
-wins++;
-
-document.getElementById("wins").innerText=wins;
-
-animateScore('wins');
-animateContainer('win');
-
-ecoLossStreak=0;
-
-updateEconomy();
-
-checkWin();
-nextRound();
+    if(gameOver) return;
+    wins++;
+    document.getElementById("wins").innerText=wins;
+    animateScore('wins');
+    animateContainer('win');
+    ecoLossStreak=0;
+    updateEconomy();
+    checkWin();
+    nextRound();
 }
 
 function lose(){
-
-if(gameOver) return;
-
-losses++;
-
-document.getElementById("losses").innerText=losses;
-
-animateScore('losses');
-animateContainer('loss');
-
-ecoLossStreak++;
-
-updateEconomy();
-
-checkWin();
-nextRound();
+    if(gameOver) return;
+    losses++;
+    document.getElementById("losses").innerText=losses;
+    animateScore('losses');
+    animateContainer('loss');
+    ecoLossStreak++;
+    updateEconomy();
+    checkWin();
+    nextRound();
 }
 
 // ===== WIN CHECK =====
 function checkWin(){
+    const scoreMsg=(msg)=>showOverlay(msg,true);
 
-const scoreMsg=(msg)=>showOverlay(msg,true);
-
-if(currentMode==="Competitive"){
-
-if(!overtime){
-
-if(wins===13 && losses<12){
-scoreMsg("Tillykke du vandt 🎉");
-return;
-}
-
-if(losses===13 && wins<12){
-scoreMsg("Man kan ikke stoppe på et loss 💀");
-return;
-}
-
-if(wins===12 && losses===12){
-showOverlay("⚔️ 12-12! Overtime starter!");
-overtime=true;
-}
-}
-else{
-
-if(wins===16 && losses<15){
-scoreMsg("Tillykke du vandt 🎉");
-return;
-}
-
-if(losses===16 && wins<15){
-scoreMsg("Man kan ikke stoppe på et loss 💀");
-return;
+    if(currentMode==="Competitive"){
+        if(!overtime){
+            if(wins===13 && losses<12){scoreMsg("Tillykke du vandt 🎉"); return;}
+            if(losses===13 && wins<12){scoreMsg("Man kan ikke stoppe på et loss 💀"); return;}
+            if(wins===12 && losses===12){showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true;}
+        } else {
+            if(wins===16 && losses<15){scoreMsg("Tillykke du vandt 🎉"); return;}
+            if(losses===16 && wins<15){scoreMsg("Man kan ikke stoppe på et loss 💀"); return;}
+            if(wins===15 && losses===15){scoreMsg("Tæt på, godt kæmpet 🤝"); return;}
+        }
+    }
+    else if(currentMode==="Wingman"){
+        if(wins===9 && losses<9){scoreMsg("Tillykke du vandt 🎉"); return;}
+        if(losses===9 && wins<9){scoreMsg("Man kan ikke stoppe på et loss 💀"); return;}
+        if(wins===8 && losses===8){scoreMsg("Tæt på, godt kæmpet 🤝"); return;}
+    }
+    else if(currentMode==="Druk"){
+        if(!overtime){
+            if(wins===13 && losses<12){scoreMsg("Tillykke du vandt 🎉"); return;}
+            if(losses===13 && wins<12){scoreMsg("Man kan ikke stoppe på et loss 💀"); return;}
+            if(wins===12 && losses===12){showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true;}
+        } else {
+            if(wins===16 && losses<15){scoreMsg("Tillykke du vandt 🎉"); return;}
+            if(losses===16 && wins<15){scoreMsg("Man kan ikke stoppe på et loss 💀"); return;}
+            if(wins===15 && losses===15){scoreMsg("Tæt på, godt kæmpet 🤝"); return;}
+        }
+    }
 }
 
-if(wins===15 && losses===15){
-scoreMsg("Tæt på, godt kæmpet 🤝");
-return;
-}
-}
-}
-
-else if(currentMode==="Wingman"){
-
-if(wins===9 && losses<9){
-scoreMsg("Tillykke du vandt 🎉");
-return;
-}
-
-if(losses===9 && wins<9){
-scoreMsg("Man kan ikke stoppe på et loss 💀");
-return;
-}
-
-if(wins===8 && losses===8){
-scoreMsg("Tæt på, godt kæmpet 🤝");
-return;
-}
-}
-
-else if(currentMode==="Druk"){
-
-if(wins===13 && losses<12){
-scoreMsg("Tillykke du vandt 🎉");
-return;
-}
-
-if(losses===13 && wins<12){
-scoreMsg("Man kan ikke stoppe på et loss 💀");
-return;
-}
-
-if(wins===12 && losses===12){
-showOverlay("⚔️ 12-12! Overtime starter!");
-overtime=true;
-return;
-}
-}
-}
-
-function endGame(){
-showOverlay("Kampen blev afsluttet.",true);
-}
+function endGame(){showOverlay("Kampen blev afsluttet.",true);}
 
 function resetGame(){
-
-round=1;
-side="";
-wins=0;
-losses=0;
-currentMode="";
-currentMap="";
-overtime=false;
-ecoLossStreak=0;
-gameOver=false;
-
-document.getElementById("wins").innerText="0";
-document.getElementById("losses").innerText="0";
-
-document.getElementById("setup").style.display="block";
-document.getElementById("game").style.display="none";
-
-document.getElementById("overlay").style.display="none";
-
-document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=false);
-
-updateEconomy();
-showSetup();
+    round=1; side=""; wins=0; losses=0; currentMode=""; currentMap=""; overtime=false; ecoLossStreak=0; gameOver=false;
+    document.getElementById("wins").innerText="0";
+    document.getElementById("losses").innerText="0";
+    document.getElementById("setup").style.display="block";
+    document.getElementById("game").style.display="none";
+    document.getElementById("overlay").style.display="none";
+    document.querySelectorAll(".win,.loss").forEach(b=>b.disabled=false);
+    updateEconomy();
+    showSetup();
 }
 
 showSetup();
