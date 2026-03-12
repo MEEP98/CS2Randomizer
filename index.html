@@ -95,12 +95,17 @@ const colorEvents=["{color} drikker","{color} drikker 2 tårer","{color} tager s
 // ===== ØKONOMI =====
 function updateEconomy(){
   if(currentMode==="Druk") return;
-  let winCash=3250, baseLoss=1400, increment=500, maxLoss=3400;
-  let lossCash=baseLoss+(ecoLossStreak-1)*increment;
-  if(lossCash>maxLoss) lossCash=maxLoss;
-  if(lossCash<baseLoss) lossCash=baseLoss;
-  document.querySelector(".ecoWin").innerText=winCash+"$";
-  document.querySelector(".ecoLoss").innerText=lossCash+"$";
+
+  const winCash = 3250;
+  const baseLoss = 1400;
+  const increment = 500;
+  const maxLoss = 3400;
+
+  let lossCash = baseLoss + Math.max(0, ecoLossStreak - 1) * increment;
+  lossCash = Math.min(lossCash, maxLoss);
+
+  document.querySelector(".ecoWin").innerText = winCash + "$";
+  document.querySelector(".ecoLoss").innerText = lossCash + "$";
 }
 
 // ===== SETUP UI =====
