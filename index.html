@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CS2 Challenge Generator</title>
+
 <style>
 body{margin:0;background:#121212;color:white;font-family:"Segoe UI",sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;}
 .container{position:relative;background:#1f1f1f;padding:25px;border-radius:12px;box-shadow:0 0 15px rgba(0,255,255,0.2);max-width:420px;width:90%;text-align:center;transition: background 0.3s;}
@@ -17,27 +18,19 @@ button:hover{transform: scale(1.05);}
 .loss{background:#dc3545;color:white;}
 .danger{background:#ff4c4c;color:white;}
 .scoreboard{display:flex;gap:10px;margin-top:15px;}
-.scoreBox{flex:1;padding:12px;border-radius:8px;text-align:center;font-weight:bold;transition: background 0.3s;}
+.scoreBox{flex:1;padding:12px;border-radius:8px;text-align:center;font-weight:bold;}
 .winBox{background:#1f5f2e;}
 .lossBox{background:#5f1f1f;}
 .scoreLabel{font-size:14px;opacity:0.8;}
-.scoreNumber{font-size:22px;margin-top:4px;transition: transform 0.3s,color 0.3s;}
-@keyframes blinkGreen{0%{background:#1f1f1f;}50%{background:#1f5f2e;}100%{background:#1f1f1f;}}
-@keyframes blinkRed{0%{background:#1f1f1f;}50%{background:#5f1f1f;}100%{background:#1f1f1f;}}
-.blink-green{animation: blinkGreen 0.4s ease;}
-.blink-red{animation: blinkRed 0.4s ease;}
-@keyframes pop{0%{transform:scale(1);color:white;}50%{transform:scale(1.5);color:yellow;}100%{transform:scale(1);color:white;}}
-.pop{animation: pop 0.3s ease;}
-#overlay{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background: rgba(0,0,0,0.85);padding:20px;border-radius:10px;font-size:18px;font-weight:bold;z-index:1000;color:white;text-align:center;}
-#overlay button{margin-top:15px;padding:10px 20px;font-size:16px;}
-@media(max-width:420px){.challengeTitle{font-size:20px;}.challengeText{font-size:16px;}button{font-size:14px;padding:12px;}}
+.scoreNumber{font-size:22px;margin-top:4px;}
 
-.ecoBox {display:flex;margin:10px 0;width:100%;height:50px;border-radius:8px;overflow:hidden;font-weight:bold;font-size:16px;cursor:default;}
+.ecoBox {display:flex;margin:10px 0;width:100%;height:50px;border-radius:8px;overflow:hidden;font-weight:bold;font-size:16px;}
 .ecoBox div {flex:1;display:flex;justify-content:center;align-items:center;color:white;}
 .ecoWin {background-color:#28a745;}
 .ecoLoss {background-color:#dc3545;}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -58,7 +51,7 @@ button:hover{transform: scale(1.05);}
 <button class="win" onclick="win()">Vandt runde</button>
 <button class="loss" onclick="lose()">Tabte runde</button>
 
-<div class="ecoBox">
+<div class="ecoBox" id="ecoBox">
 <div class="ecoWin">3250$</div>
 <div class="ecoLoss">1400$</div>
 </div>
@@ -79,35 +72,33 @@ button:hover{transform: scale(1.05);}
 
 </div>
 
-<div id="overlay"></div>
-
 </div>
 
 <script>
 
-// ===== ORIGINAL VARIABLER =====
+// GAME STATE
+let round=1, side="", wins=0, losses=0, currentMode="", currentMap="";
+let ecoLossStreak=0;
 
-let round=1, side="", overtime=false, wins=0, losses=0, currentMode="", currentMap="";
+// CS COLORS
+const csColors=["Blå","Grøn","Gul","Orange","Lilla"];
 
+function randomColor(){
+return csColors[Math.floor(Math.random()*csColors.length)];
+}
+
+// MAPS
 const mapsByMode={
-"Competitive":["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
-"Wingman":["Overpass","Vertigo","Nuke","Inferno","Andet"],
-"Druk":[]
+Competitive:["Anubis","Overpass","Inferno","Mirage","Dust 2","Nuke","Ancient","Train","Vertigo","Office","Italy","Andet"],
+Wingman:["Overpass","Vertigo","Nuke","Inferno","Andet"],
+Druk:[]
 };
 
+// WEAPONS
 const weaponsCT=["M4A1-S","M4A4","MP9","Famas","Nova","MAG-7","SSG 08","AWP","Desert Eagle","P90"];
 const weaponsT=["AK-47","Galil","Nova","SSG 08","AWP","Desert Eagle","P90"];
 
-// ===== NYT: CS PLAYER COLORS =====
-
-const csPlayerColors=["Blå","Grøn","Gul","Orange","Lilla"];
-
-function randomColor(){
-return csPlayerColors[Math.floor(Math.random()*csPlayerColors.length)];
-}
-
-// ===== ORIGINAL CHALLENGES =====
-
+// ORIGINAL CHALLENGES
 const generalChallenges=[
 {title:"Tag en slapper",text:"Du må kun liste denne runde."},
 {title:"Granatfest",text:"Brug alle dine granater inden 30 sek."},
@@ -117,7 +108,7 @@ const generalChallenges=[
 {title:"Rush time",text:"Hold W hele vejen til sitet."},
 {title:"Headshot jæger",text:"Du må kun gå efter headshots."},
 {title:"Våbenbyt",text:"Samle første våben du ser på jorden."},
-{title:"Skylden",text:"{color} får skylden hvis runden tabes"}
+{title:"Skyldig",text:"{color} får skylden hvis runden tabes"}
 ];
 
 const ctChallenges=[
@@ -130,48 +121,32 @@ const tChallenges=[
 {title:"Bomb carrier",text:"Du SKAL tage bomben hvis muligt."}
 ];
 
-// ===== NYT: DRUK CHALLENGES =====
-
+// DRUK CHALLENGES
 const drinkChallenges=[
-
 {title:"Entry død",text:"Dør du først → drik"},
 {title:"Flash fail",text:"Flasher du en teammate → drik"},
 {title:"Bomb drop",text:"Dropper du bomben → drik"},
 {title:"Reload fail",text:"Reload mid fight → drik"},
 {title:"Spray and pray",text:"Miss hele magasinet → drik"},
 {title:"Rush B",text:"Sig rush B i voice"},
-{title:"Eco gamble",text:"Kun pistol denne runde"},
-{title:"SMG only",text:"Kun SMG denne runde"},
-{title:"Shotgun gamer",text:"Kun shotgun denne runde"},
-{title:"AWP gamble",text:"Miss første skud → drik"},
-{title:"Utility master",text:"Brug alle grenades inden 30 sek"},
-{title:"Silent round",text:"Du må ikke tale denne runde"},
+{title:"Camping trip",text:"Camp første hjørne"},
 {title:"Knife attempt",text:"Prøv knife kill"},
-{title:"Camping trip",text:"Camp første hjørne du ser"},
-{title:"Rush master",text:"Hold W hele vejen"},
-{title:"Headshot hunter",text:"Kun headshots gælder"},
-{title:"No reload",text:"Reload kun når tom"},
-{title:"Trade master",text:"Du skal trade en teammate"},
-{title:"Support player",text:"Flash en teammate ind"},
-{title:"Clutch mode",text:"Hvis clutch fejler drikker {color}"}
-
+{title:"Utility master",text:"Brug alle grenades"},
+{title:"Skylden",text:"{color} drikker"}
 ];
 
-// ===== NYT: FARVE EVENTS =====
-
+// FARVE EVENTS
 const colorEvents=[
-"{color} spiller drikker",
+"{color} drikker",
 "{color} drikker 2 tårer",
-"{color} får skylden og drikker",
-"{color} tager næste straf",
+"{color} tager straffen",
 "Alle drikker"
 ];
 
-// ===== ØKONOMI =====
-
-let ecoLossStreak=0;
-
+// ECONOMY
 function updateEconomy(){
+
+if(currentMode==="Druk") return;
 
 const winCash=3250;
 const baseLoss=1400;
@@ -180,19 +155,109 @@ const maxLoss=3400;
 
 let lossCash=baseLoss+(ecoLossStreak-1)*increment;
 
-if(lossCash>maxLoss)lossCash=maxLoss;
-if(lossCash<baseLoss)lossCash=baseLoss;
+if(lossCash>maxLoss) lossCash=maxLoss;
+if(lossCash<baseLoss) lossCash=baseLoss;
 
 document.querySelector(".ecoWin").innerText=winCash+"$";
 document.querySelector(".ecoLoss").innerText=lossCash+"$";
 
 }
 
-// ===== RANDOM CHALLENGE =====
+// SETUP
+function showSetup(){
 
+const setup=document.getElementById("setup");
+
+setup.innerHTML="<p>Vælg Game Mode</p>";
+
+["Competitive","Wingman","Druk"].forEach(mode=>{
+let btn=document.createElement("button");
+btn.className="primary";
+btn.innerText=mode;
+btn.onclick=()=>selectMode(mode);
+setup.appendChild(btn);
+});
+
+}
+
+// MODE SELECT
+function selectMode(mode){
+
+currentMode=mode;
+
+document.getElementById("modeDisplay").innerText=mode;
+
+const setup=document.getElementById("setup");
+
+setup.innerHTML="";
+
+if(mode==="Druk"){
+
+setup.innerHTML="<p>Druk mode 🍺</p>";
+
+let start=document.createElement("button");
+start.className="primary";
+start.innerText="Start";
+start.onclick=()=>startGame("T");
+
+setup.appendChild(start);
+
+return;
+}
+
+setup.innerHTML=`<p>Vælg Map (${mode})</p>`;
+
+mapsByMode[mode].forEach(map=>{
+let btn=document.createElement("button");
+btn.className="primary";
+btn.innerText=map;
+btn.onclick=()=>selectMap(map);
+setup.appendChild(btn);
+});
+
+}
+
+// MAP SELECT
+function selectMap(map){
+
+currentMap=map;
+
+document.getElementById("mapDisplay").innerText=map;
+
+const setup=document.getElementById("setup");
+
+setup.innerHTML=`<p>Vælg start side</p>`;
+
+[["Start som CT","CT"],["Start som T","T"]].forEach(([label,s])=>{
+let btn=document.createElement("button");
+btn.className="primary";
+btn.innerText=label;
+btn.onclick=()=>startGame(s);
+setup.appendChild(btn);
+});
+
+}
+
+// START GAME
+function startGame(s){
+
+side=s;
+
+document.getElementById("setup").style.display="none";
+document.getElementById("game").style.display="block";
+
+if(currentMode==="Druk"){
+document.getElementById("ecoBox").style.display="none";
+}else{
+document.getElementById("ecoBox").style.display="flex";
+}
+
+updateUI();
+
+}
+
+// RANDOM CHALLENGE
 function randomChallenge(){
-
-// DRUK MODE
 
 if(currentMode==="Druk"){
 
@@ -209,135 +274,87 @@ text:txt.replace("{color}",randomColor())
 
 let c=drinkChallenges[Math.floor(Math.random()*drinkChallenges.length)];
 
-let text=c.text.replace("{color}",randomColor()).replace("{color}",randomColor());
-
-return{title:c.title,text:text};
+return{
+title:c.title,
+text:c.text.replace("{color}",randomColor())
+};
 
 }
 
-// ORIGINAL MODES
+// NORMAL MODES
 
 let pool=[...generalChallenges];
 
-if(side==="CT")pool.push(...ctChallenges);
-if(side==="T")pool.push(...tChallenges);
+if(side==="CT") pool.push(...ctChallenges);
+if(side==="T") pool.push(...tChallenges);
 
 let c=pool[Math.floor(Math.random()*pool.length)];
 
-let text=c.text.replace("{color}",randomColor()).replace("{color}",randomColor());
-
-return{title:c.title,text:text};
-
-}
-
-// ===== RESTEN AF ORIGINAL SCRIPT =====
-
-function showSetup(){
-const setupDiv=document.getElementById("setup");
-setupDiv.innerHTML="<p>Vælg Game Mode</p>";
-
-["Competitive","Wingman","Druk"].forEach(mode=>{
-const btn=document.createElement("button");
-btn.className="primary";
-btn.innerText=mode;
-btn.onclick=()=>selectMode(mode);
-setupDiv.appendChild(btn);
-});
-}
-
-function selectMode(mode){
-
-currentMode=mode;
-document.getElementById("modeDisplay").innerText=mode;
-
-const setupDiv=document.getElementById("setup");
-
-setupDiv.innerHTML="";
-
-if(mode==="Druk"){
-
-setupDiv.innerHTML="<p>Druk mode klar 🍺</p>";
-
-const start=document.createElement("button");
-start.className="primary";
-start.innerText="Start";
-start.onclick=()=>startGame("T");
-setupDiv.appendChild(start);
-
-const back=document.createElement("button");
-back.className="danger";
-back.innerText="Tilbage";
-back.onclick=showSetup;
-setupDiv.appendChild(back);
-
-return;
-}
-
-setupDiv.innerHTML=`<p>Vælg Map (${mode})</p>`;
-
-mapsByMode[mode].forEach(map=>{
-
-const btn=document.createElement("button");
-
-btn.className="primary";
-btn.style.marginTop="10px";
-btn.innerText=map;
-btn.onclick=()=>selectMap(map);
-
-setupDiv.appendChild(btn);
-
-});
+return{
+title:c.title,
+text:c.text.replace("{color}",randomColor())
+};
 
 }
 
-function selectMap(map){
-
-currentMap=map;
-
-document.getElementById("mapDisplay").innerText=map;
-
-const setupDiv=document.getElementById("setup");
-
-setupDiv.innerHTML=`<p>Valgt Mode: ${currentMode}</p><p>Valgt Map: ${currentMap}</p><p>Vælg start side</p>`;
-
-[["Start som Counter-Terrorist","CT"],["Start som Terrorist","T"]].forEach(([label,s])=>{
-
-const btn=document.createElement("button");
-
-btn.className="primary";
-btn.innerText=label;
-btn.onclick=()=>startGame(s);
-
-setupDiv.appendChild(btn);
-
-});
-
-}
-
-function startGame(s){
-
-side=s;
-
-document.getElementById("setup").style.display="none";
-document.getElementById("game").style.display="block";
-
-updateUI();
-
-}
-
+// UPDATE UI
 function updateUI(){
 
 document.getElementById("round").innerText=round;
 document.getElementById("side").innerText=side==="CT"?"Counter-Terrorist":"Terrorist";
 
-const c=randomChallenge();
+let c=randomChallenge();
 
-const challengeDiv=document.getElementById("challenge");
+document.getElementById("challenge").innerHTML=
+"<div class='challengeTitle'>"+c.title+"</div>"+
+"<div class='challengeText'>"+c.text+"</div>";
 
-challengeDiv.innerHTML=`<div class='challengeTitle'></div><div class='challengeText'></div>`;
+}
 
-challengeDiv.querySelector(".challengeTitle").textContent=c.title;
-challengeDiv.querySelector(".challengeText").textContent=c.text;
+// ROUND FLOW
+function nextRound(){
+
+round++;
+
+updateUI();
+
+}
+
+// WIN
+function win(){
+
+wins++;
+
+if(currentMode!=="Druk"){
+ecoLossStreak=0;
+updateEconomy();
+}
+
+document.getElementById("wins").innerText=wins;
+
+nextRound();
+
+}
+
+// LOSS
+function lose(){
+
+losses++;
+
+if(currentMode!=="Druk"){
+ecoLossStreak++;
+updateEconomy();
+}
+
+document.getElementById("losses").innerText=losses;
+
+nextRound();
+
+}
+
+function endGame(){
+
+location.reload();
 
 }
 
