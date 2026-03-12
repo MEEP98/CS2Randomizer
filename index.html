@@ -194,16 +194,16 @@ function checkWin(){
       if(losses===16 && wins<15){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; }
       if(wins===15 && losses===15){ scoreMsg("Tæt på, godt kæmpet 🤝"); return; }
     }
+
   } else if(currentMode==="Wingman"){
     if(wins===9 && losses<9){ scoreMsg("Tillykke du vandt 🎉"); return; }
     if(losses===9 && wins<9){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; }
     if(wins===8 && losses===8){ scoreMsg("Tæt på, godt kæmpet 🤝"); return; }
+
   } else if(currentMode==="Druk"){
     if(wins===13 && losses<12){ scoreMsg("Tillykke du vandt 🎉"); return; }
     if(losses===13 && wins<12){ scoreMsg("Man kan ikke stoppe på et loss 💀"); return; }
-    if(wins===12 && losses===12){ showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true; }
-      return;
-    }
+    if(wins===12 && losses===12){ showOverlay("⚔️ 12-12! Overtime starter!"); overtime=true; return; }
   }
 }
 
